@@ -27,6 +27,47 @@ incorporate custom modes of operation provided the same addressing and timing is
 4. Create custom video modes following original timing
 5. Create custom video modes with novel screen construction and timing
 
+## Signal Output ##
+The 6847 provides 13 lanes of address bus to reference memory - this maps to the first 8k of the regular 16bit
+address space. If used in conjunction with the MC6883 SAM chip only the first bit is used to provided a clock
+signal to an internal address counter. This allows the use of paged video memory - all on 512 byte boundaries, 
+potentially anywhere in the full 64k address space.
+
+In addition the chip provides a horizontal sync signal (consumed by the SAM)
+
+## Signal Input ##
+The 6847 requires a clock input (CLK), 8 bits of data bus (DD0-DD7) and 8 bits of mode control:
+* ~A/G = Alpha or Graphics
+* ~A/S = Alpha or Semigraphics
+* ~INT/EXT = Internal or External alphanumerics
+* GM0 = Graphic Mode LSB
+* GM1 = Graphic Mode Bit 1
+* GM2 = Graphic Mode Bit 2 (MSB)
+* CSS
+* INV = Inverted Alphanumerics
+
+~A/G, ~A/S, CSS and INV can be controlled on a character by character basis.
+
+CSS selects between two possible alphanumeric colours - the effect 
+will vary depending on the graphic mode selected
+
+| ~A/G | ~A/S | ~INT/EXT | INV | GM2 | GM1 | GM0 | Mode | Colours | Page Size |
+|:----:|:----:|:--------:|:---:|:---:|:---:|:---:|:-----|:-------:|:--------:|
+| 0    | 0    | 0        | 0   | X   | X   | X   | Internal Alphanumeric | 2 | 512 |
+| 0    | 0    | 0        | 1   | X   | X   | X   | Internal Alphanumeric Inverted | 2 | 512 |
+| 0    | 0    | 1        | 0   | X   | X   | X   | External Alphanumeric | 2 | 512 |
+| 0    | 0    | 1        | 1   | X   | X   | X   | External Alphanumeric Inverted | 2 | 512 |
+| 0 | 1 | 0 | X | X | X | X | Semigraphics 4 | 8 | 1024 |
+| 0 | 1 | 1 | X | X | X | X | Semigraphics 6 | 8 | 2048 |
+| 1 | X | X | X | 0 | 0 | 0 | 64x64 Graphics | 4 | 1024 |
+| 1 | X | X | X | 0 | 0 | 1 | 128x64 Graphics | 2 | 1024 |
+| 1 | X | X | X | 0 | 1 | 0 | 128x64 Graphics | 4 | 2048 |
+| 1 | X | X | X | 0 | 1 | 1 | 128x96 Graphics | 2 | 1536 |
+| 1 | X | X | X | 1 | 0 | 0 | 128x96 Graphics | 4 | 3072 |
+| 1 | X | X | X | 1 | 0 | 1 | 128x192 Graphics | 2 | 3072 |
+| 1 | X | X | X | 1 | 1 | 0 | 128x192 Graphics | 4 | 6144 |
+| 1 | X | X | X | 1 | 1 | 1 | 256x192 Graphics | 2 | 6144 |
+
 ## Video Output ##
 The 6847 has three output lines - Luminance (Y), ∅ A and ∅ B
 The three signals combine to provide 9 colours - black, green, yellow, blue, red, buff (white), cyan, magenta
