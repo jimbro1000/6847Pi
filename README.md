@@ -18,7 +18,13 @@ cheap microcontrollers means it is fairly simple to build a custom VDG that exhi
 while operating in a completely custom manner internally.
 
 Custom fonts are a basic starting point, custom palettes are equally simple but there is scope in the system to
-incorporate custom modes of operation provided the same addressing and timing is retained
+incorporate custom modes of operation provided the same addressing and timing is retained.
+
+The essential requirement is to replace the 6847P in the Dragon range of home computers - this significantly
+narrows the functional requirements of the substitute. In this scenario all addressing is performed by the
+accompanying SAM (MC6883) address multiplexing chip. The system also binds pins to further simplify
+implementation - INV and DD6 are combined, as are ~A/S and DD7, and ~INT/EXT with GM0. Without this there are
+simply not enough GPIO pins available on the pre-built RP Pico board (as opposed to the RP2040 chip itself).
 
 ## Objectives ##
 1. MVP is to reproduce the existing 6847 as per the original Motorola datasheet using the RP2040 microcontroller
@@ -34,6 +40,9 @@ signal to an internal address counter. This allows the use of paged video memory
 potentially anywhere in the full 64k address space.
 
 In addition the chip provides a horizontal sync signal (consumed by the SAM)
+
+Fully implemented the data output requires 14 gpio pins. Simplifying the implementation in conjunction with a
+SAM reduces the pin count to just 2.
 
 ## Signal Input ##
 The 6847 requires a clock input (CLK), 8 bits of data bus (DD0-DD7) and 8 bits of mode control:
@@ -68,6 +77,8 @@ will vary depending on the graphic mode selected
 | 1 | X | X | X | 1 | 1 | 0 | 128x192 Graphics | 4 | 6144 |
 | 1 | X | X | X | 1 | 1 | 1 | 256x192 Graphics | 2 | 6144 |
 
+The control input consumes 15 GPIO pins
+
 ## Video Output ##
 The 6847 has three output lines - Luminance (Y), ∅ A and ∅ B
 The three signals combine to provide 9 colours - black, green, yellow, blue, red, buff (white), cyan, magenta
@@ -92,3 +103,64 @@ Using the original datasheet for reference the default output is for NTSC and re
 between the Y, A and B signals.
 Y leads the trio, B follows, then A. The Y-B delay is half the rise/fall time of Y, while the B-A delay is fully
 the sum of Y-B and the rise/fall time of B.
+
+To achieve an analogue signal output from the microcontroller the signal must by synthesized from a group of
+digital GPIO pins.
+
+For the 6 level Y output 3 pins are needed (actually achieves 8 levels). For A and B where 3 or 4 levels are 
+required then just 2 gpio pins each is needed. This consumes a total of 7 GPIO pins.
+
+## Total GPIO Pin Requirements ##
+
+Data input needs 14 or 2 GPIO pins - for the purposes of the MVP this will use the simple 2 pin
+version. Control input requires 15 GPIO pins. Video output requires 7 pins. The grand total of 24 pins.
+
+The initial choice of the RP2040 provides 30 GPIO pins - this is adequate for the simple implementation but is
+inadequate for the full pin requirement of 36 pins.
+
+### 6847 to GPIO pin mapping ###
+
+| 6847 pin    | RP2040 pin | RP Pico Pin |
+|:-----------:|:----------:|:-----------:|
+| VSS 1       | VSS 57     | Gnd 38      |
+| DD6 2       | GPIO6 8    | GP6 9       |
+| DD0 3       | GPIO0 2    | GP0 1       |
+| DD1 4       | GPIO1 3    | GP1 2       |
+| DD2 5       | GPIO2 4    | GP2 4       |
+| DD3 6       | GPIO3 5    | GP3 5       |
+| DD4 7       | GPIO4 6    | GP4 6       |
+| DD5 8       | GPIO5 7    | GP5 7       |
+| CHB 9       | GPIO11     | GP11 15     |
+| B 10        | GPIO18-19 29-30 | GP18-19 24-25 |
+| A 11        | GPIO20-21 31-32 | GP20-21 26-27 |
+| ~MS 12      | GPIO13 16  | GP13 17     |
+| DA5 13      | -          | -           |
+| DA6 14      | -          | -           |
+| DA7 15      | -          | -           |
+| DA8 16      | -          | -           |
+| VCC 17      | ?          | Vbus 40     |
+| DA9 18      | -          | -           |
+| DA10 19     | -          | -           |
+| DA11 20     | -          | -           |
+| DA12 21     | -          | -           |
+| DA0 22      | GPIO17 28  | GP17 22     |
+| DA1 23      | -          | -           |
+| DA2 24      | -          | -           |
+| DA3 25      | -          | -           |
+| DA4 26      | -          | -           |
+| GM2 27      | GPIO10 13  | GP10 14     |
+| Y 28        | GPIO26-28 38-40 | GP26-28 31,32,34 | 
+| GM1 29      | GPIO9 12   | GP9 12      |
+| GM0 30      | GPIO8 11   | GP8 11      |
+| ~INT/EXT 31 | GPIO8 11   | GP8 11      |
+| INV 32      | GPIO6 8    | GP6 9       |
+| CLK 33      | GPIO15 18  | GP15 20     |
+| ~A/S 34     | GPIO7 9    | GP7 10      |
+| ~A/G 35     | GPIO14 17  | GP14 19     |
+| ~RP 36      | -          | -           |
+| ~FS 37      | GPIO13 16  | GP13 17     |
+| ~HS 38      | GPIO16 27  | GP16 21     |
+| CSS 39      | GPIO17 28  | GP17 22     |
+| DD7 40      | GPIO7 9    | GP7 10      |
+
+Unused GPIO pins: 12 22 (23 24)
