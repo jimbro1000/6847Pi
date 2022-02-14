@@ -66,26 +66,28 @@ will vary depending on the graphic mode selected
 | 0    | 0    | 0        | 1   | X   | X   | X   | Internal Alphanumeric Inverted | 2 | 512 |
 | 0    | 0    | 1        | 0   | X   | X   | X   | External Alphanumeric | 2 | 512 |
 | 0    | 0    | 1        | 1   | X   | X   | X   | External Alphanumeric Inverted | 2 | 512 |
-| 0 | 1 | 0 | X | X | X | X | Semigraphics 4 | 8 | 1024 |
-| 0 | 1 | 1 | X | X | X | X | Semigraphics 6 | 8 | 2048 |
-| 1 | X | X | X | 0 | 0 | 0 | 64x64 Graphics | 4 | 1024 |
-| 1 | X | X | X | 0 | 0 | 1 | 128x64 Graphics | 2 | 1024 |
-| 1 | X | X | X | 0 | 1 | 0 | 128x64 Graphics | 4 | 2048 |
-| 1 | X | X | X | 0 | 1 | 1 | 128x96 Graphics | 2 | 1536 |
-| 1 | X | X | X | 1 | 0 | 0 | 128x96 Graphics | 4 | 3072 |
-| 1 | X | X | X | 1 | 0 | 1 | 128x192 Graphics | 2 | 3072 |
-| 1 | X | X | X | 1 | 1 | 0 | 128x192 Graphics | 4 | 6144 |
-| 1 | X | X | X | 1 | 1 | 1 | 256x192 Graphics | 2 | 6144 |
-
-The control input consumes 15 GPIO pins
+| 0    | 1    | 0        | X   | X   | X   | X   | Semigraphics 4 | 8 | 1024 |
+| 0    | 1    | 1        | X   | X   | X   | X   | Semigraphics 6 | 8 | 2048 |
+| 1    | X    | X        | X   | 0   | 0   | 0   | 64x64 Graphics | 4 | 1024 |
+| 1    | X    | X        | X   | 0   | 0   | 1   | 128x64 Graphics | 2 | 1024 |
+| 1    | X    | X        | X   | 0   | 1   | 0   | 128x64 Graphics | 4 | 2048 |
+| 1    | X    | X        | X   | 0   | 1   | 1   | 128x96 Graphics | 2 | 1536 |
+| 1    | X    | X        | X   | 1   | 0   | 0   | 128x96 Graphics | 4 | 3072 |
+| 1    | X    | X        | X   | 1   | 0   | 1   | 128x192 Graphics | 2 | 3072 |
+| 1    | X    | X        | X   | 1   | 1   | 0   | 128x192 Graphics | 4 | 6144 |
+| 1    | X    | X        | X   | 1   | 1   | 1   | 256x192 Graphics | 2 | 6144 |
+ 
+The control input consumes 15 GPIO pins.
 
 ## Video Output ##
-The 6847 has three output lines - Luminance (Y), ∅ A and ∅ B
+The 6847 has three output lines - Luminance (Y), ∅ A and ∅ B.
+
 The three signals combine to provide 9 colours - black, green, yellow, blue, red, buff (white), cyan, magenta
-and orange
+and orange.
 
 Y is a 6 level analogue signal, A is a 3 level analogue signal, B is a 4 level analogue signal. Not all signal
-combinations are valid for the primary display area
+combinations are valid for the primary display area. For the main display only 4 levels are needed, the other
+two levels are used for signal blanking and sync.
 
 | Colour  | Y | A | B |
 |:--------|:-:|:-:|:-:|
@@ -164,3 +166,42 @@ inadequate for the full pin requirement of 36 pins.
 | DD7 40      | GPIO7 9    | GP7 10      |
 
 Unused GPIO pins: 12 22 (23 24)
+
+### Y DAC ###
+The 3 GPIO outputs can be converted to an analogue output using a resistor ladder array
+
+GPIO 0 - 2kohm
+
+GPIO 1 - 1kohm
+
+GPIO 2 - 499ohm
+
+Result is 8 levels from 0 to 7 - only the values 0 to 5 are needed. The output at level 
+5 needs to be peak output, to achieve this some level mapping is needed.
+
+| level | pin 2 | pin 1 | pin 0 | target | output |
+|:-----:|:-----:|:-----:|:-----:|:------:|:------:|
+| 0     | 0     | 0     | 0     | 0%     | 0%     |
+| 1     | 0     | 0     | 1     | 20%    | 14.2%  |
+| 2     | 0     | 1     | 1     | 40%    | 42.8%  |
+| 3     | 1     | 0     | 0     | 60%    | 57.1%  |
+| 4     | 1     | 1     | 0     | 80%    | 85.7%  |
+| 5     | 1     | 1     | 1     | 100%   | 100%   |
+
+### A and B DAC ###
+The outputs both use the same arrangement with just 2 pins each
+
+GPIO 18, 20 - 1kohm
+
+GPIO 19, 21 - 499ohm 
+
+Result on each pair is 4 levels from 0 to 3
+
+The output for B can be direct but A only needs 3 levels which needs
+mapping again.
+
+| level | pin 21 | pin 20 | target | output |
+|:-----:|:------:|:------:|:------:|:------:|
+| 0     | 0      | 0      | 0%     | 0%     |
+| 1     | 1      | 0      | 50%    | 66.6%  |
+| 2     | 1      | 1      | 100%   | 100%   |
