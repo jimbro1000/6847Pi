@@ -205,3 +205,67 @@ mapping again.
 | 0     | 0      | 0      | 0%     | 0%     |
 | 1     | 1      | 0      | 50%    | 66.6%  |
 | 2     | 1      | 1      | 100%   | 100%   |
+
+## Phase 2 ##
+The next objective of development is to replace the LM889 composite modulator with the more modern AD724JR, 
+the important detail here is that the AD724JR requires an RGB input instead of the YAB signals normally
+produced by the original 6847P. This in turn means we have a proper RGB signal to consume externally, not 
+just by the AD724JR which gives us two bonuses for the price of one.
+
+RGB output from the RP2040 is an established capability so in many ways this is actually simplifying the
+necessary work.
+
+The complicating point here is that an 8 colour output is nice and simple and needs just 2 bits per 
+component channel but the Dragon needs 9 colours (actually it is more than this as we have three shades of
+black generated in normal output and two different shades of orange - even if the normal green and bright
+orange are not generated on the same screen mode). None the less if the original output is to be retained
+there has to be scope in the output signal to do this.
+
+Approximation of output levels per channel for each colour:
+
+| Colour        | Red  | Green | Blue  |
+|:-------------:|:----:|:-----:|:-----:|
+| Black         | 0%   | 0%    | 0%    |
+| Red           | 75%  | 0%    | 12%   |
+| Green         | 0%   | 100%  | 0%    |
+| Blue          | 12%  | 0%    | 75%   |
+| Yellow        | 100% | 100%  | 25%   |
+| Buff          | 100% | 100%  | 100%  |
+| Orange        | 100% | 25%   | 0%    |
+| Cyan          | 0%   | 87%   | 50%   |
+| Magenta       | 100% | 0%    | 100%  |
+| Green/Black   | 0%   | 25%   | 0%    |
+| Orange/Black  | 37%  | 0%    | 0%    |
+| Bright Orange | 100% | 75%   | 25%   |
+
+The tricky part comes from the orange and off-black colours. All the others can be treated as simple, single bit output.
+All three channels require 3 bits for output, two more than the YAB output in phase 1. Fortunately we have two unused
+GPIO pins, and better still the desired output levels match up with the bit step values (close enough to look genuine).
+
+Again the signal pins are building a signal through a resistor ladder:
+
+Pin 0 -> 2kohm
+Pin 1 -> 1kohm
+Pin 2 -> 499ohm
+
+The outputs are just combined in the same way as before to create a linear DAC.
+
+The input to the AD724JR need to be grounded via a 75ohm pull-down resistor on each signal line, and through a 0.1uF
+capacitor. The concern is that the raw RGB signal is then attenuated for a parallel VGA output and may require amplifying
+(to be tested). Without the ADR724JR the output from the ladder DAC is sufficient to drive a VGA port directly.
+
+The VGA output still needs a hsync and vsync signal as well, these too can be driven directly (with a 47ohm resistor each),
+the input to the AD724JR shouldn't need the resistors in line.
+
+## AD724JR Input ##
+
+Beyond the RGB, Hsync and Vsync, the AD724JR video encoder doesn't need much extra. Two 5V inputs, two grounds, a timing
+signal (4.43362MHz for PAL) and some fixed values for "Encode" (high for run, low for standby), "select" (low), and 
+"standard" (low for PAL).
+
+## AD724JR Output ##
+
+The encoder provides three signals for two independent outputs. The only one of these needed is "COMP" - a combined
+composite output. The other two are isolated chrominance and luminance outputs used in s-video.
+
+Note: the output levels are double the normal strength to accomodate 75ohm remote termination
