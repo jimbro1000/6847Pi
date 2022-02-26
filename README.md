@@ -170,11 +170,11 @@ Unused GPIO pins: 12 22 (23 24)
 ### Y DAC ###
 The 3 GPIO outputs can be converted to an analogue output using a resistor ladder array
 
-GPIO 0 - 2kohm
+GPIO 26 - 2kohm
 
-GPIO 1 - 1kohm
+GPIO 27 - 1kohm
 
-GPIO 2 - 499ohm
+GPIO 28 - 499ohm
 
 Result is 8 levels from 0 to 7 - only the values 0 to 5 are needed. The output at level 
 5 needs to be peak output, to achieve this some level mapping is needed.
