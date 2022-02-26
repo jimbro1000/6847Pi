@@ -1,8 +1,4 @@
-cmake_minimum_required(VERSION 3.16)
-
-project(6847Pi)
-
-add_executable(6847Pi
+add_executable(6847pi
         6847pi.c
         )
 
