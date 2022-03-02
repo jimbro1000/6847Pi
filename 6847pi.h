@@ -17,4 +17,23 @@ const int A_MAX = 3;
 const int A_MIN = 0;
 const int A_MAP[4] = {0,1,2,3};
 
+const int DEFAULT_ROW_SIZE = 256;
+const int SEMI_ROW_SIZE = 256;
+const int WIDE_ROW_SIZE = 320;
+const int DEFAULT_FRONT_PORCH = 16;
+const int DEFAULT_SYNC = 96;
+const int DEFAULT_BACK_PORCH = 48;
+
+const int LOW_SCREEN_X = 320;
+const int LOW_SCREEN_Y = 240;
+const int VGA_RATIO = 2;
+
+struct OutputRow {
+    OutputRow *next;
+    uint16_t row_size;
+    uint16_t row[WIDE_ROW_SIZE];
+    uint8_t bpp;
+    uint8_t palette;
+}
+
 #endif
