@@ -252,7 +252,7 @@ The outputs are just combined in the same way as before to create a linear DAC.
 
 The input to the AD724JR need to be grounded via a 75ohm pull-down resistor on each signal line, and through a 0.1uF
 capacitor. The concern is that the raw RGB signal is then attenuated for a parallel VGA output and may require amplifying
-(to be tested). Without the ADR724JR the output from the ladder DAC is sufficient to drive a VGA port directly.
+(to be tested). Without the AD724JR the output from the ladder DAC is sufficient to drive a VGA port directly.
 
 The VGA output still needs a hsync and vsync signal as well, these too can be driven directly (with a 47ohm resistor each),
 the input to the AD724JR shouldn't need the resistors in line.
@@ -267,5 +267,15 @@ signal (4.43362MHz for PAL) and some fixed values for "Encode" (high for run, lo
 
 The encoder provides three signals for two independent outputs. The only one of these needed is "COMP" - a combined
 composite output. The other two are isolated chrominance and luminance outputs used in s-video.
+
+Using the composite output on the AD724JR means the carefully controlled, phase matched Y/A/B output can be removed from 
+the Pico's responsibility. The composite output can be fed directly to the monitor port instead, although this then would
+require removing or disabling the onboard signal encoder (LM1889). The new output line can be supplied directly to the
+video half of the power board (pin 6). If the modulator is to be retained it would need to be fed to the base pin of TR4,
+this then allows the AD724JR to drive composite and rf output. The simplest point to inject the signal would be
+pin 10 (todo: verify pin 10 or 11) of the vacated LM1889 position but this then feeds through a maze of crude amplifying
+transistors (TR2 and TR3) likely to destroy the quality of the signal given this task has already been performed by the
+AD724JR. Given the likelihood of needing a modulated RF output it is pretty much a moot point unless a need for nostalgic
+completeness is present.
 
 Note: the output levels are double the normal strength to accomodate 75ohm remote termination
