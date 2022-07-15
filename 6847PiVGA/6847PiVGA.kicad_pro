@@ -50,14 +50,21 @@
       },
       "diff_pair_dimensions": [],
       "drc_exclusions": [
+        "courtyards_overlap|124254999|132751001|b121f1ff-8472-460b-ab2d-5110ddd1ca28|e7376da1-2f59-4570-81e8-46fca0289df0",
         "courtyards_overlap|124254999|132751001|e7376da1-2f59-4570-81e8-46fca0289df0|b121f1ff-8472-460b-ab2d-5110ddd1ca28",
+        "courtyards_overlap|126794999|134529001|2938bf2d-2d32-4cb0-9d4d-563ea28ffffa|b121f1ff-8472-460b-ab2d-5110ddd1ca28",
         "courtyards_overlap|126794999|134529001|b121f1ff-8472-460b-ab2d-5110ddd1ca28|2938bf2d-2d32-4cb0-9d4d-563ea28ffffa",
         "courtyards_overlap|90205653|85577001|47890384-6eaa-420c-b9ae-e68a6a7f17b5|712d6a7d-2b62-464f-b745-fd2a6b0187f6",
         "courtyards_overlap|90205653|85577001|712d6a7d-2b62-464f-b745-fd2a6b0187f6|47890384-6eaa-420c-b9ae-e68a6a7f17b5",
+        "courtyards_overlap|90221974|85577001|712d6a7d-2b62-464f-b745-fd2a6b0187f6|47890384-6eaa-420c-b9ae-e68a6a7f17b5",
+        "silk_over_copper|90527000|86097000|a8470270-920a-4fed-9691-22526135f92c|a3bac13a-12d6-49fe-af44-9b2119eb09dc",
         "silk_over_copper|90527000|86097000|a8470270-920a-4fed-9691-22526135f92c|b3d08afa-f296-4e3b-8825-73b6331d35bf",
         "silk_over_copper|90927000|136717000|b45faf1e-b7a2-4d73-9833-db84a2fde78b|a03e565f-d8cd-4032-aae3-b7327d4143dd",
+        "silk_over_copper|98547000|135696000|17276f1b-c597-45dc-a0c1-acbafffecd44|e6235600-87cc-4c82-b15f-34fb66b9bf0e",
         "silk_overlap|92087000|136717000|b45faf1e-b7a2-4d73-9833-db84a2fde78b|13abf99d-5265-4779-8973-e94370fd18ff",
-        "silk_overlap|92087000|85797000|13abf99d-5265-4779-8973-e94370fd18ff|7f7833f4-976f-4a80-99c4-69f2976ed565"
+        "silk_overlap|92087000|85797000|13abf99d-5265-4779-8973-e94370fd18ff|7f7833f4-976f-4a80-99c4-69f2976ed565",
+        "silk_overlap|92087000|85797000|7f7833f4-976f-4a80-99c4-69f2976ed565|c0badd00-82a6-46a2-9ca5-4fcaf4878863",
+        "silk_overlap|97387000|135696000|17276f1b-c597-45dc-a0c1-acbafffecd44|f88265e8-a27a-4259-b3ad-7df91a571c60"
       ],
       "meta": {
         "version": 2
