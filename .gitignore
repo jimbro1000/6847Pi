@@ -1,7 +1,5 @@
 build/
 .vscode/
-<<<<<<< HEAD
 CMakeFiles/
-=======
-CMakeFiles/
->>>>>>> 122bc31cb25bd377c98ed363f2f84b2c30549003
+6847PiVGA/*-backups/
+6847PiVGA/production/

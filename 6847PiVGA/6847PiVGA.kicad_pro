@@ -48,24 +48,14 @@
           "min_clearance": 0.508
         }
       },
-      "diff_pair_dimensions": [],
-      "drc_exclusions": [
-        "courtyards_overlap|124254999|132751001|b121f1ff-8472-460b-ab2d-5110ddd1ca28|e7376da1-2f59-4570-81e8-46fca0289df0",
-        "courtyards_overlap|124254999|132751001|e7376da1-2f59-4570-81e8-46fca0289df0|b121f1ff-8472-460b-ab2d-5110ddd1ca28",
-        "courtyards_overlap|126794999|134529001|2938bf2d-2d32-4cb0-9d4d-563ea28ffffa|b121f1ff-8472-460b-ab2d-5110ddd1ca28",
-        "courtyards_overlap|126794999|134529001|b121f1ff-8472-460b-ab2d-5110ddd1ca28|2938bf2d-2d32-4cb0-9d4d-563ea28ffffa",
-        "courtyards_overlap|90205653|85577001|47890384-6eaa-420c-b9ae-e68a6a7f17b5|712d6a7d-2b62-464f-b745-fd2a6b0187f6",
-        "courtyards_overlap|90205653|85577001|712d6a7d-2b62-464f-b745-fd2a6b0187f6|47890384-6eaa-420c-b9ae-e68a6a7f17b5",
-        "courtyards_overlap|90221974|85577001|712d6a7d-2b62-464f-b745-fd2a6b0187f6|47890384-6eaa-420c-b9ae-e68a6a7f17b5",
-        "silk_over_copper|90527000|86097000|a8470270-920a-4fed-9691-22526135f92c|a3bac13a-12d6-49fe-af44-9b2119eb09dc",
-        "silk_over_copper|90527000|86097000|a8470270-920a-4fed-9691-22526135f92c|b3d08afa-f296-4e3b-8825-73b6331d35bf",
-        "silk_over_copper|90927000|136717000|b45faf1e-b7a2-4d73-9833-db84a2fde78b|a03e565f-d8cd-4032-aae3-b7327d4143dd",
-        "silk_over_copper|98547000|135696000|17276f1b-c597-45dc-a0c1-acbafffecd44|e6235600-87cc-4c82-b15f-34fb66b9bf0e",
-        "silk_overlap|92087000|136717000|b45faf1e-b7a2-4d73-9833-db84a2fde78b|13abf99d-5265-4779-8973-e94370fd18ff",
-        "silk_overlap|92087000|85797000|13abf99d-5265-4779-8973-e94370fd18ff|7f7833f4-976f-4a80-99c4-69f2976ed565",
-        "silk_overlap|92087000|85797000|7f7833f4-976f-4a80-99c4-69f2976ed565|c0badd00-82a6-46a2-9ca5-4fcaf4878863",
-        "silk_overlap|97387000|135696000|17276f1b-c597-45dc-a0c1-acbafffecd44|f88265e8-a27a-4259-b3ad-7df91a571c60"
+      "diff_pair_dimensions": [
+        {
+          "gap": 0.0,
+          "via_gap": 0.0,
+          "width": 0.0
+        }
       ],
+      "drc_exclusions": [],
       "meta": {
         "version": 2
       },
@@ -73,7 +63,7 @@
         "annular_width": "error",
         "clearance": "error",
         "copper_edge_clearance": "error",
-        "courtyards_overlap": "error",
+        "courtyards_overlap": "ignore",
         "diff_pair_gap_out_of_range": "error",
         "diff_pair_uncoupled_length_too_long": "error",
         "drill_out_of_range": "error",
@@ -84,7 +74,7 @@
         "hole_near_hole": "error",
         "invalid_outline": "error",
         "item_on_disabled_layer": "error",
-        "items_not_allowed": "error",
+        "items_not_allowed": "ignore",
         "length_out_of_range": "error",
         "malformed_courtyard": "error",
         "microvia_drill_out_of_range": "error",
@@ -128,8 +118,15 @@
         "solder_mask_min_width": 0.0,
         "use_height_for_length_calcs": true
       },
-      "track_widths": [],
-      "via_dimensions": [],
+      "track_widths": [
+        0.0
+      ],
+      "via_dimensions": [
+        {
+          "diameter": 0.0,
+          "drill": 0.0
+        }
+      ],
       "zones_allow_external_fillets": false,
       "zones_use_no_outline": true
     },
@@ -370,6 +367,28 @@
         "via_diameter": 0.8,
         "via_drill": 0.4,
         "wire_width": 6.0
+      },
+      {
+        "bus_width": 12.0,
+        "clearance": 0.2,
+        "diff_pair_gap": 0.25,
+        "diff_pair_via_gap": 0.25,
+        "diff_pair_width": 0.2,
+        "line_style": 0,
+        "microvia_diameter": 0.3,
+        "microvia_drill": 0.1,
+        "name": "Power",
+        "nets": [
+          "+5V",
+          "+5VD",
+          "GND"
+        ],
+        "pcb_color": "rgba(0, 0, 0, 0.000)",
+        "schematic_color": "rgba(0, 0, 0, 0.000)",
+        "track_width": 0.5,
+        "via_diameter": 0.8,
+        "via_drill": 0.4,
+        "wire_width": 6.0
       }
     ],
     "meta": {
@@ -382,7 +401,7 @@
       "gencad": "",
       "idf": "",
       "netlist": "",
-      "specctra_dsn": "",
+      "specctra_dsn": "6847PiVGA.dsn",
       "step": "",
       "vrml": ""
     },
