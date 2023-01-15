@@ -55,7 +55,12 @@
           "width": 0.0
         }
       ],
-      "drc_exclusions": [],
+      "drc_exclusions": [
+        "silk_over_copper|87338000|85797000|ec7073f7-f754-4ee6-a977-3d11d16480f8|a3bac13a-12d6-49fe-af44-9b2119eb09dc",
+        "silk_over_copper|98547000|135442000|17276f1b-c597-45dc-a0c1-acbafffecd44|e6235600-87cc-4c82-b15f-34fb66b9bf0e",
+        "silk_overlap|89298000|85797000|ec7073f7-f754-4ee6-a977-3d11d16480f8|c0badd00-82a6-46a2-9ca5-4fcaf4878863",
+        "silk_overlap|97387000|135442000|17276f1b-c597-45dc-a0c1-acbafffecd44|f88265e8-a27a-4259-b3ad-7df91a571c60"
+      ],
       "meta": {
         "version": 2
       },
