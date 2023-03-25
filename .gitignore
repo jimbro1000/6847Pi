@@ -3,3 +3,5 @@ build/
 CMakeFiles/
 6847PiVGA/*-backups/
 6847PiVGA/production/
+.idea/
+cmake-build-debug

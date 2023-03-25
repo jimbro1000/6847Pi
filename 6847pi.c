@@ -2,22 +2,27 @@
 #include "6847pi.h"
 
 const uint32_t SLEEP = 5000;
-const uint32_t OUTPUT_BUFFER_SIZE = 12;
-const unit32_t DEFAULT_ROW_SIZE = 32;
+const uint32_t DEFAULT_ROW_BYTES = 32;
 const uint32_t BUFFER_SLEEP = 1;
 
-row_pipe OutputRow[OUTPUT_BUFFER_SIZE];
-OutputRow *row_pipe_ptr;
-OutputRow *read_pipe_ptr;
-uint32_t current_row_size = DEFAULT_ROW_SIZE;
+// output buffer
+struct OutputRow row_pipe[OUTPUT_BUFFER_SIZE];
+// buffer insert point
+struct OutputRow *row_pipe_ptr;
+// buffer output point
+struct OutputRow *read_pipe_ptr;
+uint32_t current_row_size = DEFAULT_ROW_BYTES;
 
 void init_row_pipe() {
+    // link output buffer rows
     row_pipe[OUTPUT_BUFFER_SIZE - 1].next = &row_pipe[0]; 
     for (int i = OUTPUT_BUFFER_SIZE - 2; i >= 0; --i) {
-        row_pipe[i] = &row_pipe[i+1];
+        row_pipe[i].next = &row_pipe[i+1];
     }
+    // set insert and output pointers
     row_pipe_ptr = &row_pipe[0];
     read_pipe_ptr = &row_pipe[0];
+    // set screen line byte length
     for (int i = 0; i < OUTPUT_BUFFER_SIZE; ++i) {
         row_pipe_ptr->row_size = current_row_size;
         for (int j = 0; j < current_row_size; ++j) {
@@ -28,6 +33,8 @@ void init_row_pipe() {
     }
 }
 
+// manual output
+// this needs transferring to PIO state machine
 void reset_analog_output(const int pins[], int scale) {
     for (int i = 0; i < scale; ++i) {
         gpio_put(pins[i], 0);
@@ -53,7 +60,7 @@ void analog_output(int value, const int pins[], int scale, int max, const int va
     }
 }
 
-bool push_to_output_buffer(OutputRow *new_row) {
+bool push_to_output_buffer(struct OutputRow *new_row) {
     bool result = false;
     if (row_pipe_ptr->next != read_pipe_ptr) {
         row_pipe_ptr->row_size = new_row->row_size;
@@ -70,22 +77,22 @@ void generate_graphic_rows(uint8_t *source_buffer[], uint8_t buffer_size, uint8_
     const uint16_t cycles = 8 / bpp;
     const uint16_t row_size = buffer_size * cycles;
     for (int i = 0; i < row_ratio; ++i) {
-        OutputRow row;
+        struct OutputRow row;
         row.row_size = row_size;
         row.bpp = bpp;
         row.palette = palette;
         int counter = 0;
         for (int j = 0; j < buffer_size; ++j) {
-            uint8_t source = source_buffer[j];
+            uint8_t source = *source_buffer[j];
             for (int k = 0; k < cycles; ++k) {
                 uint16_t pixel = 0;
                 for (int l = 0; l < bpp; ++l) {
-                    if (source && 256) {
+                    if (source != 0) {
                         ++pixel;
                     }
                     source = source << 1;
                 }
-                row[counter++] = pixel;
+                row.row[counter++] = pixel;
             }
         }
         bool accepted = false;
@@ -94,13 +101,12 @@ void generate_graphic_rows(uint8_t *source_buffer[], uint8_t buffer_size, uint8_
             if (!accepted) {
                 sleep_ms(BUFFER_SLEEP);
             }
-        } until (accepted == true);
+        } while (accepted);
     }
 }
 
 int main() {
     const uint LED_PIN = PICO_DEFAULT_LED_PIN;
-    output_buffer = output_buffer[OUTPUT_BUFFER_SIZE];
     init_row_pipe();
     gpio_init(LED_PIN);
     gpio_set_dir(LED_PIN, GPIO_OUT);

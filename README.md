@@ -60,22 +60,22 @@ The 6847 requires a clock input (CLK), 8 bits of data bus (DD0-DD7) and 8 bits o
 CSS selects between two possible alphanumeric colours - the effect 
 will vary depending on the graphic mode selected
 
-| ~A/G | ~A/S | ~INT/EXT | INV | GM2 | GM1 | GM0 | Mode | Colours | Page Size |
-|:----:|:----:|:--------:|:---:|:---:|:---:|:---:|:-----|:-------:|:--------:|
-| 0    | 0    | 0        | 0   | X   | X   | X   | Internal Alphanumeric | 2 | 512 |
-| 0    | 0    | 0        | 1   | X   | X   | X   | Internal Alphanumeric Inverted | 2 | 512 |
-| 0    | 0    | 1        | 0   | X   | X   | X   | External Alphanumeric | 2 | 512 |
-| 0    | 0    | 1        | 1   | X   | X   | X   | External Alphanumeric Inverted | 2 | 512 |
-| 0    | 1    | 0        | X   | X   | X   | X   | Semigraphics 4 | 8 | 1024 |
-| 0    | 1    | 1        | X   | X   | X   | X   | Semigraphics 6 | 8 | 2048 |
-| 1    | X    | X        | X   | 0   | 0   | 0   | 64x64 Graphics | 4 | 1024 |
-| 1    | X    | X        | X   | 0   | 0   | 1   | 128x64 Graphics | 2 | 1024 |
-| 1    | X    | X        | X   | 0   | 1   | 0   | 128x64 Graphics | 4 | 2048 |
-| 1    | X    | X        | X   | 0   | 1   | 1   | 128x96 Graphics | 2 | 1536 |
-| 1    | X    | X        | X   | 1   | 0   | 0   | 128x96 Graphics | 4 | 3072 |
-| 1    | X    | X        | X   | 1   | 0   | 1   | 128x192 Graphics | 2 | 3072 |
-| 1    | X    | X        | X   | 1   | 1   | 0   | 128x192 Graphics | 4 | 6144 |
-| 1    | X    | X        | X   | 1   | 1   | 1   | 256x192 Graphics | 2 | 6144 |
+| ~A/G | ~A/S | ~INT/EXT | INV | GM2 | GM1 | GM0 | Mode                           | Colours | Page Size |
+|:----:|:----:|:--------:|:---:|:---:|:---:|:---:|:-------------------------------|:-------:|:---------:|
+|  0   |  0   |    0     |  0  |  X  |  X  |  X  | Internal Alphanumeric          |    2    |    512    |
+|  0   |  0   |    0     |  1  |  X  |  X  |  X  | Internal Alphanumeric Inverted |    2    |    512    |
+|  0   |  0   |    1     |  0  |  X  |  X  |  X  | External Alphanumeric          |    2    |    512    |
+|  0   |  0   |    1     |  1  |  X  |  X  |  X  | External Alphanumeric Inverted |    2    |    512    |
+|  0   |  1   |    0     |  X  |  X  |  X  |  X  | Semigraphics 4                 |    8    |   1024    |
+|  0   |  1   |    1     |  X  |  X  |  X  |  X  | Semigraphics 6                 |    8    |   2048    |
+|  1   |  X   |    X     |  X  |  0  |  0  |  0  | 64x64 Graphics                 |    4    |   1024    |
+|  1   |  X   |    X     |  X  |  0  |  0  |  1  | 128x64 Graphics                |    2    |   1024    |
+|  1   |  X   |    X     |  X  |  0  |  1  |  0  | 128x64 Graphics                |    4    |   2048    |
+|  1   |  X   |    X     |  X  |  0  |  1  |  1  | 128x96 Graphics                |    2    |   1536    |
+|  1   |  X   |    X     |  X  |  1  |  0  |  0  | 128x96 Graphics                |    4    |   3072    |
+|  1   |  X   |    X     |  X  |  1  |  0  |  1  | 128x192 Graphics               |    2    |   3072    |
+|  1   |  X   |    X     |  X  |  1  |  1  |  0  | 128x192 Graphics               |    4    |   6144    |
+|  1   |  X   |    X     |  X  |  1  |  1  |  1  | 256x192 Graphics               |    2    |   6144    |
  
 The control input consumes 15 GPIO pins.
 
@@ -89,25 +89,24 @@ Y is a 6 level analogue signal, A is a 3 level analogue signal, B is a 4 level a
 combinations are valid for the primary display area. For the main display only 4 levels are needed, the other
 two levels are used for signal blanking and sync.
 
-| Colour  | Y | A | B |
-|:--------|:-:|:-:|:-:|
-| Black   | 5 |0/1| 2 |
-| Green   | 1 | 0 | 0 |
-| Yellow  | 0 | 1 | 0 |
-| Blue    | 2 | 1 | 3 |
-| Red     | 2 | 2 | 2 |
-| Buff    | 0 | 1 | 2 |
-| Cyan    | 1 | 0 | 2 |
-| Magenta | 1 | 2 | 3 |
-| Orange  | 1 | 2 | 0 |
+| Colour  | Y |  A  | B |  
+|:--------|:-:|:---:|:-:|  
+| Black   | 5 | 0/1 | 2 |  
+| Green   | 1 |  0  | 0 |  
+| Yellow  | 0 |  1  | 0 |  
+| Blue    | 2 |  1  | 3 |  
+| Red     | 2 |  2  | 2 |  
+| Buff    | 0 |  1  | 2 |  
+| Cyan    | 1 |  0  | 2 |  
+| Magenta | 1 |  2  | 3 |  
+| Orange  | 1 |  2  | 0 |  
 
-Using the original datasheet for reference the default output is for NTSC and requires a timing phase difference
-between the Y, A and B signals.
-Y leads the trio, B follows, then A. The Y-B delay is half the rise/fall time of Y, while the B-A delay is fully
-the sum of Y-B and the rise/fall time of B.
+Using the original datasheet for reference the default output is for NTSC and requires a timing phase 
+difference between the Y, A and B signals. Y leads the trio, B follows, then A. The Y-B delay is half 
+the rise/fall time of Y, while the B-A delay is fully the sum of Y-B and the rise/fall time of B.
 
-To achieve an analogue signal output from the microcontroller the signal must by synthesized from a group of
-digital GPIO pins.
+To achieve an analogue signal output from the microcontroller the signal must be synthesized from a 
+group of digital GPIO pins.
 
 For the 6 level Y output 3 pins are needed (actually achieves 8 levels). For A and B where 3 or 4 levels are 
 required then just 2 gpio pins each is needed. This consumes a total of 7 GPIO pins.
@@ -122,48 +121,48 @@ inadequate for the full pin requirement of 36 pins.
 
 ### 6847 to GPIO pin mapping ###
 
-| 6847 pin    | RP2040 pin | RP Pico Pin |
-|:-----------:|:----------:|:-----------:|
-| VSS 1       | VSS 57     | Gnd 38      |
-| DD6 2       | GPIO6 8    | GP6 9       |
-| DD0 3       | GPIO0 2    | GP0 1       |
-| DD1 4       | GPIO1 3    | GP1 2       |
-| DD2 5       | GPIO2 4    | GP2 4       |
-| DD3 6       | GPIO3 5    | GP3 5       |
-| DD4 7       | GPIO4 6    | GP4 6       |
-| DD5 8       | GPIO5 7    | GP5 7       |
-| CHB 9       | GPIO11     | GP11 15     |
-| B 10        | GPIO18-19 29-30 | GP18-19 24-25 |
-| A 11        | GPIO20-21 31-32 | GP20-21 26-27 |
-| ~MS 12      | GPIO13 16  | GP13 17     |
-| DA5 13      | -          | -           |
-| DA6 14      | -          | -           |
-| DA7 15      | -          | -           |
-| DA8 16      | -          | -           |
-| VCC 17      | ?          | Vbus 40     |
-| DA9 18      | -          | -           |
-| DA10 19     | -          | -           |
-| DA11 20     | -          | -           |
-| DA12 21     | -          | -           |
-| DA0 22      | GPIO17 28  | GP17 22     |
-| DA1 23      | -          | -           |
-| DA2 24      | -          | -           |
-| DA3 25      | -          | -           |
-| DA4 26      | -          | -           |
-| GM2 27      | GPIO10 13  | GP10 14     |
-| Y 28        | GPIO26-28 38-40 | GP26-28 31,32,34 | 
-| GM1 29      | GPIO9 12   | GP9 12      |
-| GM0 30      | GPIO8 11   | GP8 11      |
-| ~INT/EXT 31 | GPIO8 11   | GP8 11      |
-| INV 32      | GPIO6 8    | GP6 9       |
-| CLK 33      | GPIO15 18  | GP15 20     |
-| ~A/S 34     | GPIO7 9    | GP7 10      |
-| ~A/G 35     | GPIO14 17  | GP14 19     |
-| ~RP 36      | -          | -           |
-| ~FS 37      | GPIO13 16  | GP13 17     |
-| ~HS 38      | GPIO16 27  | GP16 21     |
-| CSS 39      | GPIO17 28  | GP17 22     |
-| DD7 40      | GPIO7 9    | GP7 10      |
+|  6847 pin   |   RP2040 pin    |   RP Pico Pin    |
+|:-----------:|:---------------:|:----------------:|
+|    VSS 1    |     VSS 57      |      Gnd 38      |
+|    DD6 2    |     GPIO6 8     |      GP6 9       |
+|    DD0 3    |     GPIO0 2     |      GP0 1       |
+|    DD1 4    |     GPIO1 3     |      GP1 2       |
+|    DD2 5    |     GPIO2 4     |      GP2 4       |
+|    DD3 6    |     GPIO3 5     |      GP3 5       |
+|    DD4 7    |     GPIO4 6     |      GP4 6       |
+|    DD5 8    |     GPIO5 7     |      GP5 7       |
+|    CHB 9    |     GPIO11      |     GP11 15      |
+|    B 10     | GPIO18-19 29-30 |  GP18-19 24-25   |
+|    A 11     | GPIO20-21 31-32 |  GP20-21 26-27   |
+|   ~MS 12    |    GPIO13 16    |     GP13 17      |
+|   DA5 13    |        -        |        -         |
+|   DA6 14    |        -        |        -         |
+|   DA7 15    |        -        |        -         |
+|   DA8 16    |        -        |        -         |
+|   VCC 17    |        ?        |     Vbus 40      |
+|   DA9 18    |        -        |        -         |
+|   DA10 19   |        -        |        -         |
+|   DA11 20   |        -        |        -         |
+|   DA12 21   |        -        |        -         |
+|   DA0 22    |    GPIO17 28    |     GP17 22      |
+|   DA1 23    |        -        |        -         |
+|   DA2 24    |        -        |        -         |
+|   DA3 25    |        -        |        -         |
+|   DA4 26    |        -        |        -         |
+|   GM2 27    |    GPIO10 13    |     GP10 14      |
+|    Y 28     | GPIO26-28 38-40 | GP26-28 31,32,34 | 
+|   GM1 29    |    GPIO9 12     |      GP9 12      |
+|   GM0 30    |    GPIO8 11     |      GP8 11      |
+| ~INT/EXT 31 |    GPIO8 11     |      GP8 11      |
+|   INV 32    |     GPIO6 8     |      GP6 9       |
+|   CLK 33    |    GPIO15 18    |     GP15 20      |
+|   ~A/S 34   |     GPIO7 9     |      GP7 10      |
+|   ~A/G 35   |    GPIO14 17    |     GP14 19      |
+|   ~RP 36    |        -        |        -         |
+|   ~FS 37    |    GPIO13 16    |     GP13 17      |
+|   ~HS 38    |    GPIO16 27    |     GP16 21      |
+|   CSS 39    |    GPIO17 28    |     GP17 22      |
+|   DD7 40    |     GPIO7 9     |      GP7 10      |
 
 Unused GPIO pins: 12 22 (23 24)
 
@@ -218,8 +217,8 @@ necessary work.
 The complicating point here is that an 8 colour output is nice and simple and needs just 2 bits per 
 component channel but the Dragon needs 9 colours (actually it is more than this as we have three shades of
 black generated in normal output and two different shades of orange - even if the normal green and bright
-orange are not generated on the same screen mode). None the less if the original output is to be retained
-there has to be scope in the output signal to do this.
+orange are not generated on the same screen mode). Nonetheless, if the original output is to be retained
+there must be scope in the output signal to do this.
 
 Approximation of output levels per channel for each colour:
 
