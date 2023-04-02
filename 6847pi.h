@@ -38,4 +38,13 @@ struct OutputRow {
     uint8_t palette;
 };
 
+struct SourceDataState {
+    uint8_t data;
+    bool external;
+    bool inverse;
+    bool semigraphics;
+    bool colour_set;
+    uint8_t graphics_mode;
+};
+
 #endif
