@@ -33,7 +33,7 @@ const int VGA_RATIO = 2;
 struct OutputRow {
     struct OutputRow *next;
     uint16_t row_size;
-    uint16_t row[WIDE_ROW_SIZE];
+    struct PixelValue row[WIDE_ROW_SIZE];
     uint8_t bpp;
     uint8_t palette;
 };
@@ -46,6 +46,13 @@ struct SourceDataState {
     bool graphics;
     bool colour_set;
     uint8_t graphics_mode;
+};
+
+struct PixelValue {
+    uint8_t palette_index;
+    uint8_t pixel_width;
+    bool colour_set;
+    struct PixelValue *next;
 };
 
 #endif

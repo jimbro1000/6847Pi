@@ -1,5 +1,6 @@
 #include "pico/stdlib.h"
 #include "6847pi.h"
+#include "font.h"
 
 const uint32_t SLEEP = 5000;
 const uint32_t DEFAULT_ROW_BYTES = 32;
@@ -27,6 +28,7 @@ struct OutputRow *row_pipe_ptr;
 // buffer output point
 struct OutputRow *read_pipe_ptr;
 uint32_t current_row_size = DEFAULT_ROW_BYTES;
+uint8_t row_counter = 0;
 
 void init_row_pipe() {
     // link output buffer rows
@@ -88,11 +90,13 @@ bool push_to_output_buffer(struct OutputRow *new_row) {
     return result;
 }
 
-uint16_t extract_pixel(uint8_t source, uint8_t bpp) {
-    uint16_t result = 0;
+struct PixelValue extract_pixel(uint8_t source, uint8_t bpp, bool colour_set) {
+    struct PixelValue results[8];
+    struct PixelValue result = results[0];
+    struct PixelValue current = results[0];
     for (int i = 0; i < bpp; ++i) {
         if (source != 0) {
-            ++result;
+            current.palette_index = 0;
         }
         source = source << 1;
     }
@@ -112,6 +116,7 @@ void safe_push_row(struct OutputRow *row) {
 void generate_text_rows(uint8_t *source_buffer[], uint8_t buffer_size, uint8_t row_ratio, uint8_t bpp, uint8_t palette, uint8_t row_counter) {
     const uint16_t cycles = 8;
     const uint16_t row_size = buffer_size * cycles;
+    row_counter = ++row_counter % 12;
     for (int i = 0; i < row_ratio; ++i) {
         struct OutputRow row;
         row.row_size = row_size;
