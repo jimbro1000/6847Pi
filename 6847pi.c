@@ -1,6 +1,7 @@
 #include "pico/stdlib.h"
 #include "6847pi.h"
 #include "font.h"
+#include "palette.h"
 
 const uint32_t SLEEP = 5000;
 const uint32_t DEFAULT_ROW_BYTES = 32;
@@ -90,15 +91,84 @@ bool push_to_output_buffer(struct OutputRow *new_row) {
     return result;
 }
 
-struct PixelValue extract_pixel(uint8_t source, uint8_t bpp, bool colour_set) {
+struct PixelValue extract_graphics_pixel(uint8_t source, uint8_t bpp, bool colour_set) {
     struct PixelValue results[8];
     struct PixelValue result = results[0];
-    struct PixelValue current = results[0];
-    for (int i = 0; i < bpp; ++i) {
-        if (source != 0) {
+    int ppb = 8 / bpp;
+    for (int j = 0; j < ppb; ++j) {
+        struct PixelValue current = results[j];
+        int pixel = 0;
+        for (int i = 0; i < bpp; ++i) {
+            if (source & 128 != 0) {
+                pixel += 1;
+            }
+            source = (source << 1) & 255;
+            pixel = (pixel << 1) & 255;
+        }
+        current.palette_index = pixel;
+        current.colour_set = colour_set;
+        if (j>0) {
+            result[j-1].next = &current;
+        }
+    }
+    return result;
+}
+
+struct PixelValue extract_semigraphics4_pixel(uint8_t source, uint8_t character_row) {
+    struct PixelValue results[8];
+    struct PixelValue result = results[0];
+    for (int j = 0; j < 8; ++j) {
+        struct PixelValue current = results[j];
+        current.pixel_width = 1;
+        int bit = 7;
+        if (j < 4) {
+            bit = 1;
+        } else {
+            bit = 2;
+        }
+        if (character_row < 6) {
+            bit = bit << 2;
+        }
+        bool pixel_set = (source & bit) != 0;
+        if (pixel_set == 0) {
+            current.palette_index = 1 + ((source & 112) >> 4);
+        } else {
             current.palette_index = 0;
         }
-        source = source << 1;
+        if (j > 0) {
+            result[j-1].next = &current;
+        }
+    }
+    return result;
+}
+
+struct PixelValue extract_semigraphics6_pixel(unit8_t source, uint8_t character_row, bool colour_set) {
+    struct PixelValue results[8];
+    struct PixelValue result = results[0];
+    for (int j = 0; j < 8; ++j) {
+        struct PixelValue current = results[j];
+        current.pixel_width = 1;
+        int bit = 7;
+        if (j < 4) {
+            bit = 1;
+        } else {
+            bit = 2;
+        }
+        if (character_row < 8) {
+            bit = bit << 2;
+            if (character_row < 4) {
+                bit = bit << 2;
+            }
+        }
+        bool pixel_set = (source & bit) != 0;
+        if (pixel_set == 0) {
+            current.palette_index = 1 + ((source & 192) >> 6);
+        } else {
+            current.palette_index = 0;
+        }
+        if (j > 0) {
+            result[j-1].next = &current;
+        }
     }
     return result;
 }

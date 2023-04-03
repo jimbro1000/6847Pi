@@ -1,8 +1,10 @@
 #ifndef PALLETTE_H
 #define PALLETTE_H
 
+const int PALETTE_SIZE = 3 * 12;
+
 // rgb values
-const int rgb_palette[3 * 12] = {
+const int rgb_palette[PALETTE_SIZE] = {
     0,7,0, //green
     7,7,0, //yellow
     1,0,5, //blue
@@ -14,11 +16,11 @@ const int rgb_palette[3 * 12] = {
     0,0,0, //black
     0,2,0, //green-black
     2,1,0, //orange-black
-    7,5,2,  //bright-orange
+    7,5,2, //bright-orange
 };
 
 // yab values
-const int yab_palette[3 * 12] = {
+const int yab_palette[PALETTE_SIZE] = {
     4,0,0, //green
     3,0,1, //yellow
     5,2,1, //blue
@@ -33,6 +35,12 @@ const int yab_palette[3 * 12] = {
     4,0,2, //bright-orange
 };
 
+struct Palette {
+    int palette_length;
+    int *source[PALETTE_SIZE];
+    int *refs[];
+};
+
 const int graphics_css0_palette[4] = {
     0,1,2,3,
 };
@@ -41,12 +49,12 @@ const int graphics_css1_palette[4] = {
     4,5,6,7,
 };
 
-const int text_css0_palette[10] = {
-    8,0,1,2,3,4,5,6,7,9,
+const int text_css0_palette[2] = {
+    8,0,
 };
 
-const int text_css1_palette[10] = {
-    8,11,1,2,3,4,5,6,7,10,
+const int text_css1_palette[2] = {
+    8,11,
 };
 
 const int semi4_palette[9] = {
@@ -68,5 +76,7 @@ const int luma_css0_palette[2] = {
 const int luma_css1_palette[2] = {
     8,4,
 };
+
+struct Palette select_palette(bool colour_set, bool semigraphics, bool graphics);
 
 #endif
