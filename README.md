@@ -166,6 +166,24 @@ inadequate for the full pin requirement of 36 pins.
 
 Unused GPIO pins: 12 22 (23 24)
 
+## 6847 video output levels ##
+
+| Color     | Y	     | phi A | phi B |
+|:----------|:------:|:-----:|:-----:|
+|Green	    | 0.54   | 1.0   | 1.0   |
+|Yellow	    | 0.42   | 1.0   | 1.5   |
+|Blue	    | 0.72   | 2.0   | 1.5   |
+|Red	    | 0.72   | 1.5   | 2.0   |
+|Buff	    | 0.42   | 1.5   | 1.5   |
+|Cyan	    | 0.54   | 1.5   | 1.5   |
+|Magenta	| 0.54   | 2.0   | 2.0   |
+|Orange	    | 0.54   | 1.0   | 2.0   |
+|Black	    | 0.72   | 1.5   | 1.5   |
+|Dark Green	| 0.72   | 1.0   | 1.0   |
+|Dark Orange| 0.72   | 1.0   | 2.0   |
+
+Values for Y, phi A and phi B are in volts
+
 ### Y DAC ###
 The 3 GPIO outputs can be converted to an analogue output using a resistor ladder array
 

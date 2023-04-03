@@ -43,6 +43,7 @@ struct SourceDataState {
     bool external;
     bool inverse;
     bool semigraphics;
+    bool graphics;
     bool colour_set;
     uint8_t graphics_mode;
 };

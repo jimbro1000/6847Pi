@@ -13,6 +13,9 @@ const uint32_t BUFFER_SLEEP = 1;
     const uint8_t SEMI_PIN = 10; //GPIO7
     const uint8_t GRAPHICS_PIN = 19; //GPIO14
     const uint8_t COLOUR_SET = 22; //GPIO17
+    const uint8_t GM0_PIN = 11; // GPIO8
+    const uint8_t GM1_PIN = 12; //GPIO9
+    const uint8_t GM2_PIN = 14; //GPIO10
     const uint8_t DATA_PIN_START = 1; //GPIO0
     const uint8_t DATA_PIN_COUNT = 8; //data bus width
 #endif
@@ -96,7 +99,7 @@ uint16_t extract_pixel(uint8_t source, uint8_t bpp) {
     return result;
 }
 
-void safe_push_row(*OutputRow row) {
+void safe_push_row(struct OutputRow *row) {
     bool accepted = false;
     do {
         accepted = push_to_output_buffer(row);
@@ -113,7 +116,7 @@ void generate_text_rows(uint8_t *source_buffer[], uint8_t buffer_size, uint8_t r
         struct OutputRow row;
         row.row_size = row_size;
         row.bpp = bpp;
-        row.paletter = palette;
+        row.palette = palette;
         int counter = 0;
         for (int j = 0; j < buffer_size; ++j) {
             uint8_t character = *source_buffer[j];
@@ -146,7 +149,7 @@ void generate_graphic_rows(uint8_t *source_buffer[], uint8_t buffer_size, uint8_
     }
 }
 
-SourceDataState sample_data() {
+struct SourceDataState sample_data() {
     // need to provide tick
     // wait for data to settle
     // sample control lines
