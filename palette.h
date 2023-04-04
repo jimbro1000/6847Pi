@@ -1,5 +1,5 @@
-#ifndef PALLETTE_H
-#define PALLETTE_H
+#ifndef PALETTE_H
+#define PALETTE_H
 
 const int PALETTE_SIZE = 3 * 12;
 
@@ -37,8 +37,8 @@ const int yab_palette[PALETTE_SIZE] = {
 
 struct Palette {
     int palette_length;
-    int *source[PALETTE_SIZE];
-    int *refs[];
+    const int *source;
+    const int *refs;
 };
 
 const int graphics_css0_palette[4] = {
@@ -77,6 +77,6 @@ const int luma_css1_palette[2] = {
     8,4,
 };
 
-struct Palette select_palette(bool colour_set, bool semigraphics, bool graphics);
+struct Palette select_palette(bool colour_set, bool semigraphics, bool graphics, bool external);
 
 #endif

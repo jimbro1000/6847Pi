@@ -1,3 +1,5 @@
+#include "palette.h"
+
 #ifndef ANALOG_6847_OUTPUT_H
 #define ANALOG_6847_OUTPUT_H
 
@@ -35,7 +37,7 @@ struct OutputRow {
     uint16_t row_size;
     struct PixelValue row[WIDE_ROW_SIZE];
     uint8_t bpp;
-    uint8_t palette;
+    struct Palette palette;
 };
 
 struct SourceDataState {
@@ -46,12 +48,13 @@ struct SourceDataState {
     bool graphics;
     bool colour_set;
     uint8_t graphics_mode;
+    uint8_t text_row;
 };
 
 struct PixelValue {
     uint8_t palette_index;
     uint8_t pixel_width;
-    bool colour_set;
+    struct Palette palette;
     struct PixelValue *next;
 };
 

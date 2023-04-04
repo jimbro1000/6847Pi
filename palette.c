@@ -1,45 +1,56 @@
 #include "pico/stdlib.h"
 #include "palette.h"
 
-struct Palette select_palette(bool colour_set, bool semigraphics, bool graphics, bool external, int mode) {
+const int* text_palette(bool colour_set) {
+    if (colour_set) {
+        return text_css1_palette;
+    }
+    return text_css0_palette;
+}
+
+const int* semi_palette(bool colour_set) {
+    if (colour_set) {
+        return semi6_css1_palette;
+    }
+    return semi6_css0_palette;
+}
+
+const int* graphics_palette(bool colour_set) {
+    if (colour_set) {
+        return graphics_css1_palette;
+    }
+    return graphics_css0_palette;
+}
+
+const int* luma_palette(bool colour_set) {
+    if (colour_set) {
+        return luma_css1_palette;
+    }
+    return luma_css0_palette;
+}
+
+struct Palette select_palette(bool colour_set, bool semigraphics, bool graphics, bool external) {
     struct Palette result;
-    result.source = &rgb_palette;
+    result.source = rgb_palette;
     if (!semigraphics && !graphics) {
         result.palette_length = 2;
-        if (colour_set) {
-            result.refs = &text_css1_palette;
-        } else {
-            result.refs = &text_css0_palette;
-        }
+        result.refs = text_palette(colour_set);
     } else if (semigraphics && !external) {
         result.palette_length = 9;
-        result.refs = &semi4_palette;
-    } else if (semigraphics && external) {
+        result.refs = semi4_palette;
+    } else if (semigraphics) {
         result.palette_length = 5;
-        if (colour_set) {
-            result.refs = &semi6_css1_palette;
-        } else {
-            result.refs = &semi6_css0_palette;
-        }
+        result.refs = semi_palette(colour_set);
     } else {
-        switch (graphics) {
-            case 0, 2, 4, 6: // colour graphics
-                result.palette_length = 4;
-                if (colour_set) {
-                    result.refs = &graphics_css1_palette;
-                } else {
-                    result.refs = &graphics_css0_palette;
-                }
-                break;
-            default: // luma graphics
-                result.palette_length = 2;
-                if (colour_set) {
-                    result.refs = &luma_css1_palette;
-                } else {
-                    result.refs = &luma_css0_palette;
-                }
-                break;
+        if (graphics % 2 == 0) {
+            // colour graphics
+            result.palette_length = 4;
+            result.refs = graphics_palette(colour_set);
+        } else {
+            // luma graphics
+            result.palette_length = 2;
+            result.refs = luma_palette(colour_set);
         }
     }
     return result;
-};
+}
