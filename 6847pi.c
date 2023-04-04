@@ -21,6 +21,8 @@ const uint32_t BUFFER_SLEEP = 1;
     const uint8_t DATA_PIN_COUNT = 8; //data bus width
     const uint8_t CLOCK_PIN = 20; //GPIO15
     const uint8_t DA0_PIN = 22; //GPIO17
+    const uint8_t HS_PIN = 21; //GPIO16
+    const uint8_t FS_PIN = 17; //GPIO13
 #endif
 
 // output buffer
@@ -90,10 +92,9 @@ void init_analog_output(const int pins[], int scale) {
  * @param scale number of pins in array
  */
 void analog_output(int value, const int pins[], int scale) {
-    //reset_analog_output(pin0, scale);
     for (int i = 0; i < scale; ++i) {
-        gpio_put(pins[i], value % 2);
-        value = value / 2;
+        gpio_put(pins[i], value && 1);
+        value = value >> 1;
     }
 }
 
@@ -118,17 +119,26 @@ bool push_to_output_buffer(struct OutputRow *new_row) {
     return result;
 }
 
+struct OutputRow pop_from_output_buffer() {
+    struct OutputRow result;
+    result.row_size = read_pipe_ptr->row_size;
+    for (int j=0; j<read_pipe_ptr->row_size; ++j) {
+        result.row[j] = read_pipe_ptr->row[j];
+    }
+    return result;
+}
+
 /**
- * Convert pixel data into formatted RGB word (3 bits per value masked $FF80).
+ * Convert pixel data into formatted RGB word (3 bits per value masked $01FF).
  *
  * @param pixel structured pixel data with embedded palette reference
  * @return RGB word
  */
 uint16_t pixel_to_rgb(struct PixelValue pixel) {
     uint16_t palette_index = pixel.palette.refs[pixel.palette_index] * 3;
-    uint16_t result = (pixel.palette.source[palette_index] << 13) +
-                      (pixel.palette.source[palette_index + 1] << 10) +
-                      (pixel.palette.source[palette_index + 2] << 7);
+    uint16_t result = (pixel.palette.source[palette_index] << 6) +
+                      (pixel.palette.source[palette_index + 1] << 3) +
+                      (pixel.palette.source[palette_index + 2]);
     return result;
 }
 
@@ -332,11 +342,12 @@ void generate_text_rows(struct SourceDataState *source_buffer[], uint8_t buffer_
 
 /**
  * Convert sampled graphic input into a screen row of RGB pixel data.
- * @param source_buffer
- * @param buffer_size
- * @param row_ratio
- * @param bpp
- * @param palette
+ * 
+ * @param source_buffer sampled source data
+ * @param buffer_size buffer size
+ * @param row_ratio display rows per source row
+ * @param bpp bits per pixel
+ * @param palette row palette
  */
 void generate_graphic_rows(struct SourceDataState *source_buffer[], uint8_t buffer_size, uint8_t row_ratio, uint8_t bpp, struct Palette palette) {
     const uint16_t cycles = 8 / bpp;
@@ -437,32 +448,42 @@ void sample_row_data(uint8_t buffer_size) {
     generate_row(source_buffer, buffer_size, VGA_RATIO, 8);
 }
 
+/**
+ * Generate a row of video data from buffer.
+ * 
+ * Current implementation is almost definitely too slow and blocking
+*/
+void generate_video_row(struct OutputRow output) {
+    gpio_put(HS_PIN, 1);
+    for (int j=0; j<DEFAULT_BACK_PORCH; ++j) {
+        analog_output(0, RGB_PINS, RGB_SCALE);
+        reset_analog_output(RGB_PINS, RGB_SCALE);
+    }
+    for (int j=0; j<output.row_size; ++j) {
+        analog_output(output.row[j], RGB_PINS, RGB_SCALE);
+        reset_analog_output(RGB_PINS, RGB_SCALE);
+    }
+    for (int j=0; j<DEFAULT_FRONT_PORCH; ++j) {
+        analog_output(0, RGB_PINS, RGB_SCALE);
+        reset_analog_output(RGB_PINS, RGB_SCALE);
+    }
+    gpio_put(HS_PIN, 0);
+}
+
 int main() {
     const uint LED_PIN = PICO_DEFAULT_LED_PIN;
     init_row_pipe();
     gpio_init(LED_PIN);
     gpio_set_dir(LED_PIN, GPIO_OUT);
     #ifdef ANALOG_6847_OUTPUT_H
-        init_analog_output(Y_PINS, Y_SCALE);
-        init_analog_output(B_PINS, B_SCALE);
-        init_analog_output(A_PINS, A_SCALE);
-
-        uint a = A_MIN;
-        uint b = B_MIN;
-        uint y = Y_MIN;
+        init_analog_output(RGB_PINS, RGB_SCALE);
         while (true) {
-//            sample_row_data(32);
-            reset_analog_output(A_PINS, A_SCALE);
-            reset_analog_output(B_PINS, B_SCALE);
-            reset_analog_output(Y_PINS, Y_SCALE);
-            a = (a + 1) % (A_MAX + 1);
-            b = (b + 1) % (B_MAX + 1);
-            y = (y + 1) % (Y_MAX + 1);
+            sample_row_data(32);
+            reset_analog_output(RGB_PINS, RGB_SCALE);
             gpio_put(LED_PIN, 0);
             sleep_ms(SLEEP);
-            analog_output(a, A_PINS, A_SCALE);
-            analog_output(b, B_PINS, B_SCALE);
-            analog_output(y, Y_PINS, Y_SCALE);
+            generate_video_row(pop_from_output_buffer());
+            // analog_output(value, RGB_PINS, RGB_SCALE);
             gpio_put(LED_PIN, 1);
             sleep_ms(SLEEP);
         }
