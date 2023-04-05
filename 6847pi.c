@@ -1,132 +1,12 @@
 #include "pico/stdlib.h"
+#include "pico/multicore.h"
 #include "6847pi.h"
 #include "font.h"
 #include "palette.h"
+#include "rowBuffer.h"
+#include "output.h"
 
-const uint32_t SLEEP = 5000;
-const uint32_t DEFAULT_ROW_BYTES = 32;
-const uint32_t BUFFER_SLEEP = 1;
-
-#ifndef CLOCK_6847_INTERFACE
-    const uint32_t READ_DELAY = 5; //ms
-    const uint8_t EXT_PIN = 11; //GPIO8
-    const uint8_t INV_PIN = 9; //GPIO6
-    const uint8_t SEMI_PIN = 10; //GPIO7
-    const uint8_t GRAPHICS_PIN = 19; //GPIO14
-    const uint8_t COLOUR_SET = 22; //GPIO17
-    const uint8_t GM0_PIN = 11; // GPIO8
-    const uint8_t GM1_PIN = 12; //GPIO9
-    const uint8_t GM2_PIN = 14; //GPIO10
-    const uint8_t DATA_PIN_START = 1; //GPIO0
-    const uint8_t DATA_PIN_COUNT = 8; //data bus width
-    const uint8_t CLOCK_PIN = 20; //GPIO15
-    const uint8_t DA0_PIN = 22; //GPIO17
-    const uint8_t HS_PIN = 21; //GPIO16
-    const uint8_t FS_PIN = 17; //GPIO13
-#endif
-
-// output buffer
-struct OutputRow row_pipe[OUTPUT_BUFFER_SIZE];
-// buffer insert point
-struct OutputRow *row_pipe_ptr;
-// buffer output point
-struct OutputRow *read_pipe_ptr;
-uint32_t current_row_size = DEFAULT_ROW_BYTES;
-uint8_t row_counter = 0;
-
-/**
- * Initialise output buffering.
- */
-void init_row_pipe() {
-    // link output buffer rows
-    row_pipe[OUTPUT_BUFFER_SIZE - 1].next = &row_pipe[0]; 
-    for (int i = OUTPUT_BUFFER_SIZE - 2; i >= 0; --i) {
-        row_pipe[i].next = &row_pipe[i+1];
-    }
-    // set insert and output pointers
-    row_pipe_ptr = &row_pipe[0];
-    read_pipe_ptr = &row_pipe[0];
-    // set screen line byte length
-    for (int i = 0; i < OUTPUT_BUFFER_SIZE; ++i) {
-        row_pipe_ptr->row_size = current_row_size;
-        for (int j = 0; j < current_row_size; ++j) {
-            row_pipe_ptr->row[j] = 0;
-        }
-        row_pipe_ptr = row_pipe_ptr->next;
-    }
-}
-
-/**
- * Reset output levels on DAC pins.
- *
- * @param pins array of pins to reset
- * @param scale number of pins to reset (default 3)
- */
-// bitbang manual output
-// this needs transferring to PIO state machine
-void reset_analog_output(const int pins[], int scale) {
-    for (int i = 0; i < scale; ++i) {
-        gpio_put(pins[i], 0);
-    }
-}
-
-/**
- * Initialise DAC output pins.
- *
- * @param pins array of pins to reset
- * @param scale number of pins to reset (default 3)
- */
-void init_analog_output(const int pins[], int scale) {
-    for (int i = 0; i < scale; ++i) {
-        gpio_init(pins[i]);
-        gpio_set_dir(pins[i], GPIO_OUT);
-    }
-    reset_analog_output(pins, scale);
-}
-
-/**
- * Write RGB values to DAC output pins.
- *
- * @param value RGB value
- * @param pins array of output pins
- * @param scale number of pins in array
- */
-void analog_output(int value, const int pins[], int scale) {
-    for (int i = 0; i < scale; ++i) {
-        gpio_put(pins[i], value && 1);
-        value = value >> 1;
-    }
-}
-
-/**
- * Put formatted pixel output row to output buffer.
- *
- * accepts input only if space exists in buffer
- *
- * @param new_row output row
- * @return success
- */
-bool push_to_output_buffer(struct OutputRow *new_row) {
-    bool result = false;
-    if (row_pipe_ptr->next != read_pipe_ptr) {
-        row_pipe_ptr->row_size = new_row->row_size;
-        for (int j=0; j<new_row->row_size; ++j) {
-            row_pipe_ptr->row[j] = new_row->row[j];
-        }
-        result = true;
-        row_pipe_ptr = row_pipe_ptr->next;
-    }
-    return result;
-}
-
-struct OutputRow pop_from_output_buffer() {
-    struct OutputRow result;
-    result.row_size = read_pipe_ptr->row_size;
-    for (int j=0; j<read_pipe_ptr->row_size; ++j) {
-        result.row[j] = read_pipe_ptr->row[j];
-    }
-    return result;
-}
+uint8_t row_counter;
 
 /**
  * Convert pixel data into formatted RGB word (3 bits per value masked $01FF).
@@ -269,23 +149,6 @@ struct PixelValue extract_semigraphics6_pixel(uint8_t source, uint8_t character_
         }
     }
     return result;
-}
-
-/**
- * Checked push of row data to output buffer.
- *
- * Blocks until row can be accepted
- *
- * @param row output row data
- */
-void safe_push_row(struct OutputRow *row) {
-    bool accepted = false;
-    do {
-        accepted = push_to_output_buffer(row);
-        if (!accepted) {
-            sleep_ms(BUFFER_SLEEP);
-        }
-    } while (!accepted);
 }
 
 /**
@@ -445,29 +308,8 @@ void sample_row_data(uint8_t buffer_size) {
             clock_state = gpio_get(CLOCK_PIN);
         }
     }
+    row_counter = (row_counter + 1) % 12;
     generate_row(source_buffer, buffer_size, VGA_RATIO, 8);
-}
-
-/**
- * Generate a row of video data from buffer.
- * 
- * Current implementation is almost definitely too slow and blocking
-*/
-void generate_video_row(struct OutputRow output) {
-    gpio_put(HS_PIN, 1);
-    for (int j=0; j<DEFAULT_BACK_PORCH; ++j) {
-        analog_output(0, RGB_PINS, RGB_SCALE);
-        reset_analog_output(RGB_PINS, RGB_SCALE);
-    }
-    for (int j=0; j<output.row_size; ++j) {
-        analog_output(output.row[j], RGB_PINS, RGB_SCALE);
-        reset_analog_output(RGB_PINS, RGB_SCALE);
-    }
-    for (int j=0; j<DEFAULT_FRONT_PORCH; ++j) {
-        analog_output(0, RGB_PINS, RGB_SCALE);
-        reset_analog_output(RGB_PINS, RGB_SCALE);
-    }
-    gpio_put(HS_PIN, 0);
 }
 
 int main() {
@@ -475,15 +317,16 @@ int main() {
     init_row_pipe();
     gpio_init(LED_PIN);
     gpio_set_dir(LED_PIN, GPIO_OUT);
+    row_counter = 0;
+
     #ifdef ANALOG_6847_OUTPUT_H
-        init_analog_output(RGB_PINS, RGB_SCALE);
-        while (true) {
+    /// \tag::setup_multicore[]
+    multicore_launch_core1(core1_render);
+    /// \end::setup_multicore[]
+    while (true) {
             sample_row_data(32);
-            reset_analog_output(RGB_PINS, RGB_SCALE);
             gpio_put(LED_PIN, 0);
             sleep_ms(SLEEP);
-            generate_video_row(pop_from_output_buffer());
-            // analog_output(value, RGB_PINS, RGB_SCALE);
             gpio_put(LED_PIN, 1);
             sleep_ms(SLEEP);
         }
