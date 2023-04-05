@@ -5,3 +5,5 @@ CMakeFiles/
 6847PiVGA/production/
 .idea/
 cmake-build-debug
+generated/
+pico-sdk/
