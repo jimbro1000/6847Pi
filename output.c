@@ -44,7 +44,7 @@ void init_analog_output(const int pins[], int scale) {
  */
 void analog_output(int value, const int pins[], int scale) {
     for (int i = 0; i < scale; ++i) {
-        gpio_put(pins[i], value && 1);
+        gpio_put(pins[i], value & 1);
         value = value >> 1;
     }
 }
