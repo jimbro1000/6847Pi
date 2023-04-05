@@ -29,8 +29,8 @@ const int* luma_palette(bool colour_set) {
     return luma_css0_palette;
 }
 
-struct Palette select_palette(bool colour_set, bool semigraphics, bool graphics, bool external) {
-    struct Palette result;
+struct palette select_palette(bool colour_set, bool semigraphics, bool graphics, bool external) {
+    struct palette result;
     result.source = rgb_palette;
     if (!semigraphics && !graphics) {
         result.palette_length = 2;

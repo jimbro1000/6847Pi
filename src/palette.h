@@ -1,10 +1,10 @@
 #ifndef PALETTE_H
 #define PALETTE_H
 
-const int PALETTE_SIZE = 3 * 12;
+#define PALETTE_SIZE 36
 
 // rgb values
-const int rgb_palette[36] = {
+const int rgb_palette[PALETTE_SIZE] = {
     0,7,0, //green
     7,7,0, //yellow
     1,0,5, //blue
@@ -20,7 +20,7 @@ const int rgb_palette[36] = {
 };
 
 // yab values
-const int yab_palette[36] = {
+const int yab_palette[PALETTE_SIZE] = {
     4,0,0, //green
     3,0,1, //yellow
     5,2,1, //blue
@@ -35,7 +35,7 @@ const int yab_palette[36] = {
     4,0,2, //bright-orange
 };
 
-struct Palette {
+struct palette {
     int palette_length;
     const int *source;
     const int *refs;
@@ -77,6 +77,6 @@ const int luma_css1_palette[2] = {
     8,4,
 };
 
-struct Palette select_palette(bool colour_set, bool semigraphics, bool graphics, bool external);
+struct palette select_palette(bool colour_set, bool semigraphics, bool graphics, bool external);
 
-#endif
+#endif //PALETTE_H

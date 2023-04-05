@@ -1,26 +1,10 @@
-#include "palette.h"
-
 #ifndef ANALOG_6847_OUTPUT_H
 #define ANALOG_6847_OUTPUT_H
 
-// const int Y_PINS[3] = {31,32,34};
-// const int Y_SCALE = 3;
-// const int Y_MAX = 5;
-// const int Y_MIN = 0;
-// const int Y_MAP[6] = {0,1,3,4,6,7};
-// const int B_PINS[2] = {26,27};
-// const int B_SCALE = 2;
-// const int B_MAX = 2;
-// const int B_MIN = 0;
-// const int B_MAP[3] = {0,2,3};
-// const int A_PINS[2] = {24,25};
-// const int A_SCALE = 2;
-// const int A_MAX = 3;
-// const int A_MIN = 0;
-// const int A_MAP[4] = {0,1,2,3};
+#include "palette.h"
 
-const int RGB_SCALE = 9;
-const int RGB_PINS[9] = {22,24,25,26,27,29,31,32,34};
+#define RGB_SCALE 9
+const int RGB_PINS[RGB_SCALE] = {22,24,25,26,27,29,31,32,34};
 
 #define DEFAULT_ROW_SIZE 256
 #define SEMI_ROW_SIZE 256
@@ -38,13 +22,13 @@ const int LOW_SCREEN_X = 320;
 const int LOW_SCREEN_Y = 240;
 const int VGA_RATIO = 2;
 
-struct OutputRow {
-    struct OutputRow *next;
+struct output_row {
+    struct output_row *next;
     uint16_t row_size;
     uint16_t row[WIDE_ROW_SIZE];
 };
 
-struct SourceDataState {
+struct source_data_state {
     uint8_t data;
     bool external;
     bool inverse;
@@ -55,11 +39,11 @@ struct SourceDataState {
     uint8_t text_row;
 };
 
-struct PixelValue {
+struct pixel_value {
     uint8_t palette_index;
     uint8_t pixel_width;
-    struct Palette palette;
-    struct PixelValue *next;
+    struct palette palette;
+    struct pixel_value *next;
 };
 
 #endif

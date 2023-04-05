@@ -14,7 +14,7 @@ uint8_t row_counter;
  * @param pixel structured pixel data with embedded palette reference
  * @return RGB word
  */
-uint16_t pixel_to_rgb(struct PixelValue pixel) {
+uint16_t pixel_to_rgb(struct pixel_value pixel) {
     uint16_t palette_index = pixel.palette.refs[pixel.palette_index] * 3;
     uint16_t result = (pixel.palette.source[palette_index] << 6) +
                       (pixel.palette.source[palette_index + 1] << 3) +
@@ -32,10 +32,10 @@ uint16_t pixel_to_rgb(struct PixelValue pixel) {
  * @param pixel head of structured pixel data linked list
  * @return revised tail index of output row
  */
-uint8_t pixel_block_to_rgb_row(struct OutputRow *output, uint8_t index, struct PixelValue *pixel) {
-    struct PixelValue *pixelPtr = pixel;
+uint8_t pixel_block_to_rgb_row(struct output_row *output, uint8_t index, struct pixel_value *pixel) {
+    struct pixel_value *pixelPtr = pixel;
     while (pixelPtr != NULL) {
-        for (int i=0; i < pixel->pixel_width; ++i) {
+        for (int i = 0; i < pixel->pixel_width; ++i) {
             output->row[index++] = pixel_to_rgb(*pixel);
         }
         pixelPtr = pixelPtr->next;
@@ -51,12 +51,12 @@ uint8_t pixel_block_to_rgb_row(struct OutputRow *output, uint8_t index, struct P
  * @param palette applicable palette mapping for pixel data
  * @return forward linked list of pixel data
  */
-struct PixelValue extract_graphics_pixel(uint8_t source, uint8_t bpp, struct Palette palette) {
-    struct PixelValue results[8];
-    struct PixelValue result = results[0];
+struct pixel_value extract_graphics_pixel(uint8_t source, uint8_t bpp, struct palette palette) {
+    struct pixel_value results[8];
+    struct pixel_value result = results[0];
     int ppb = 8 / bpp;
     for (int j = 0; j < ppb; ++j) {
-        struct PixelValue current = results[j];
+        struct pixel_value current = results[j];
         int pixel = 0;
         for (int i = 0; i < bpp; ++i) {
             if ((source & 128) != 0) {
@@ -67,8 +67,8 @@ struct PixelValue extract_graphics_pixel(uint8_t source, uint8_t bpp, struct Pal
         }
         current.palette_index = pixel;
         current.palette = palette;
-        if (j>0) {
-            results[j-1].next = &current;
+        if (j > 0) {
+            results[j - 1].next = &current;
         }
     }
     return result;
@@ -82,11 +82,11 @@ struct PixelValue extract_graphics_pixel(uint8_t source, uint8_t bpp, struct Pal
  * @param palette applicable colour palette
  * @return head of linked list of structured pixel data
  */
-struct PixelValue extract_semigraphics4_pixel(uint8_t source, uint8_t character_row, struct Palette palette) {
-    struct PixelValue results[8];
-    struct PixelValue result = results[0];
+struct pixel_value extract_semigraphics4_pixel(uint8_t source, uint8_t character_row, struct palette palette) {
+    struct pixel_value results[8];
+    struct pixel_value result = results[0];
     for (int j = 0; j < 8; ++j) {
-        struct PixelValue current = results[j];
+        struct pixel_value current = results[j];
         current.pixel_width = 1;
         int bit;
         if (j < 4) {
@@ -105,7 +105,7 @@ struct PixelValue extract_semigraphics4_pixel(uint8_t source, uint8_t character_
             current.palette_index = 0;
         }
         if (j > 0) {
-            results[j-1].next = &current;
+            results[j - 1].next = &current;
         }
     }
     return result;
@@ -119,11 +119,11 @@ struct PixelValue extract_semigraphics4_pixel(uint8_t source, uint8_t character_
  * @param palette applicable colour palette
  * @return head of linked list of structured pixel data
  */
-struct PixelValue extract_semigraphics6_pixel(uint8_t source, uint8_t character_row, struct Palette palette) {
-    struct PixelValue results[8];
-    struct PixelValue result = results[0];
+struct pixel_value extract_semigraphics6_pixel(uint8_t source, uint8_t character_row, struct palette palette) {
+    struct pixel_value results[8];
+    struct pixel_value result = results[0];
     for (int j = 0; j < 8; ++j) {
-        struct PixelValue current = results[j];
+        struct pixel_value current = results[j];
         current.pixel_width = 1;
         int bit;
         if (j < 4) {
@@ -145,7 +145,7 @@ struct PixelValue extract_semigraphics6_pixel(uint8_t source, uint8_t character_
             current.palette_index = 0;
         }
         if (j > 0) {
-            results[j-1].next = &current;
+            results[j - 1].next = &current;
         }
     }
     return result;
@@ -161,19 +161,19 @@ struct PixelValue extract_semigraphics6_pixel(uint8_t source, uint8_t character_
  * @param row_ratio number of rows to generate from the same sampled input (default 12)
  * @param bpp bits per pixel
  */
-void generate_text_rows(struct SourceDataState *source_buffer[], uint8_t buffer_size, uint8_t row_ratio, uint8_t bpp) {
+void generate_text_rows(struct source_data_state *source_buffer[], uint8_t buffer_size, uint8_t row_ratio, uint8_t bpp) {
     const uint16_t cycles = 8;
     const uint16_t row_size = buffer_size * cycles;
-    struct PixelValue pixelHead;
+    struct pixel_value pixelHead;
     for (int i = 0; i < row_ratio; ++i) {
-        struct OutputRow row;
+        struct output_row row;
         row.row_size = row_size;
         int counter = 0;
         for (int j = 0; j < buffer_size; ++j) {
             uint8_t data = source_buffer[j]->data;
             uint8_t text_row = source_buffer[j]->text_row;
             if (data > 127) {
-                struct Palette palette = select_palette(source_buffer[j]->colour_set,
+                struct palette palette = select_palette(source_buffer[j]->colour_set,
                                                         source_buffer[j]->semigraphics,
                                                         source_buffer[j]->graphics,
                                                         source_buffer[j]->external);
@@ -191,7 +191,7 @@ void generate_text_rows(struct SourceDataState *source_buffer[], uint8_t buffer_
                 }
             } else {
                 uint8_t source = get_character_row(data, text_row);
-                struct Palette palette = select_palette(source_buffer[j]->colour_set,
+                struct palette palette = select_palette(source_buffer[j]->colour_set,
                                                         source_buffer[j]->semigraphics,
                                                         source_buffer[j]->graphics,
                                                         source_buffer[j]->external);
@@ -212,13 +212,14 @@ void generate_text_rows(struct SourceDataState *source_buffer[], uint8_t buffer_
  * @param bpp bits per pixel
  * @param palette row palette
  */
-void generate_graphic_rows(struct SourceDataState *source_buffer[], uint8_t buffer_size, uint8_t row_ratio, uint8_t bpp, struct Palette palette) {
+void generate_graphic_rows(struct source_data_state *source_buffer[], uint8_t buffer_size, uint8_t row_ratio, uint8_t bpp,
+                           struct palette palette) {
     const uint16_t cycles = 8 / bpp;
     const uint16_t row_size = buffer_size * cycles;
-    struct PixelValue pixelHead;
+    struct pixel_value pixelHead;
     int counter = 0;
     for (int i = 0; i < row_ratio; ++i) {
-        struct OutputRow row;
+        struct output_row row;
         row.row_size = row_size;
         for (int j = 0; j < buffer_size; ++j) {
             uint8_t source = source_buffer[j]->data;
@@ -237,10 +238,11 @@ void generate_graphic_rows(struct SourceDataState *source_buffer[], uint8_t buff
  * @param row_ratio screen rows per source row
  * @param bpp bits per pixel
  */
-void generate_row(struct SourceDataState *source_buffer[], uint8_t buffer_size, uint8_t row_ratio, uint8_t bpp) {
-    struct SourceDataState primary = *source_buffer[0];
+void generate_row(struct source_data_state *source_buffer[], uint8_t buffer_size, uint8_t row_ratio, uint8_t bpp) {
+    struct source_data_state primary = *source_buffer[0];
     if (primary.graphics) {
-        struct Palette palette = select_palette(primary.colour_set, primary.semigraphics, primary.graphics, primary.external);
+        struct palette palette = select_palette(primary.colour_set, primary.semigraphics, primary.graphics,
+                                                primary.external);
         generate_graphic_rows(source_buffer, buffer_size, row_ratio, bpp, palette);
     } else {
         generate_text_rows(source_buffer, buffer_size, 1, 8);
@@ -254,7 +256,7 @@ void generate_row(struct SourceDataState *source_buffer[], uint8_t buffer_size, 
  *
  * @param sample sample data structure to populate
  */
-void sample_data(struct SourceDataState *sample) {
+void sample_data(struct source_data_state *sample) {
     // sample control lines
     sample->external = gpio_get(EXT_PIN);
     sample->inverse = gpio_get(INV_PIN);
@@ -289,7 +291,7 @@ void sample_data(struct SourceDataState *sample) {
  * @param buffer_size length of available buffer
  */
 void sample_row_data(uint8_t buffer_size) {
-    struct SourceDataState *source_buffer[buffer_size];
+    struct source_data_state *source_buffer[buffer_size];
     //synchronise reads with cpu timing using graphics clock
     //wait for clock_pin rising edge
     bool clock_state = false;
@@ -319,21 +321,21 @@ int main() {
     gpio_set_dir(LED_PIN, GPIO_OUT);
     row_counter = 0;
 
-    #ifdef ANALOG_6847_OUTPUT_H
+#ifdef ANALOG_6847_OUTPUT_H
     /// \tag::setup_multicore[]
     multicore_launch_core1(core1_render);
     /// \end::setup_multicore[]
     while (true) {
-            sample_row_data(32);
-            gpio_put(LED_PIN, 0);
-            sleep_ms(SLEEP);
-            gpio_put(LED_PIN, 1);
-            sleep_ms(SLEEP);
-        }
-    #else
+        sample_row_data(32);
         gpio_put(LED_PIN, 0);
-        sleep_ms(300);
+        sleep_ms(SLEEP);
         gpio_put(LED_PIN, 1);
-        sleep_ms(300)
-    #endif
+        sleep_ms(SLEEP);
+    }
+#else
+    gpio_put(LED_PIN, 0);
+    sleep_ms(300);
+    gpio_put(LED_PIN, 1);
+    sleep_ms(300)
+#endif
 }

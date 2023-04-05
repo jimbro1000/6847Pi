@@ -11,6 +11,6 @@ add_executable(6847pi
         src/output.c
         src/rowBuffer.c)
 
-target_link_libraries(6847pi pico_stdlib)
+target_link_libraries(6847pi pico_stdlib pico_multicore)
 
 pico_add_extra_outputs(6847pi)

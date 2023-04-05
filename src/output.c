@@ -54,7 +54,7 @@ void analog_output(int value, const int pins[], int scale) {
  *
  * Current implementation is almost definitely too slow and blocking
 */
-void generate_video_row(struct OutputRow output) {
+void generate_video_row(struct output_row output) {
     gpio_put(HS_PIN, 1);
     for (int j=0; j<DEFAULT_BACK_PORCH; ++j) {
         analog_output(0, RGB_PINS, RGB_SCALE);
