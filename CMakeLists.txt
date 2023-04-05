@@ -5,11 +5,11 @@ project(6847pi)
 pico_sdk_init()
 
 add_executable(6847pi
-        6847pi.c
-        palette.c
-        font.c
-        output.c
-        rowBuffer.c)
+        src/6847pi.c
+        src/palette.c
+        src/font.c
+        src/output.c
+        src/rowBuffer.c)
 
 target_link_libraries(6847pi pico_stdlib)
 
