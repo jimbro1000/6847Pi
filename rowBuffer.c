@@ -11,6 +11,7 @@ struct OutputRow row_pipe[OUTPUT_BUFFER_SIZE];
 struct OutputRow *row_pipe_ptr;
 // buffer output point
 struct OutputRow *read_pipe_ptr;
+// expected buffer row length
 uint32_t current_row_size = DEFAULT_ROW_BYTES;
 
 /**

@@ -20,7 +20,7 @@
 // const int A_MAP[4] = {0,1,2,3};
 
 const int RGB_SCALE = 9;
-const int RGB_PINS[RGB_SCALE] = {22,24,25,26,27,29,31,32,34};
+const int RGB_PINS[9] = {22,24,25,26,27,29,31,32,34};
 
 #define DEFAULT_ROW_SIZE 256
 #define SEMI_ROW_SIZE 256

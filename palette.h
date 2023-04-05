@@ -4,7 +4,7 @@
 const int PALETTE_SIZE = 3 * 12;
 
 // rgb values
-const int rgb_palette[PALETTE_SIZE] = {
+const int rgb_palette[36] = {
     0,7,0, //green
     7,7,0, //yellow
     1,0,5, //blue
@@ -20,7 +20,7 @@ const int rgb_palette[PALETTE_SIZE] = {
 };
 
 // yab values
-const int yab_palette[PALETTE_SIZE] = {
+const int yab_palette[36] = {
     4,0,0, //green
     3,0,1, //yellow
     5,2,1, //blue
