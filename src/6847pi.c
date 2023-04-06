@@ -90,19 +90,11 @@ struct pixel_value extract_semigraphics4_pixel(uint8_t source, uint8_t character
     for (int j = 0; j < 8; ++j) {
         struct pixel_value current = results[j];
         current.pixel_width = 1;
-        int bit;
-        if (j < 4) {
-            bit = 1;
-        } else {
-            bit = 2;
-        }
-        if (character_row < 6) {
-            bit = bit << 2;
-        }
+        int bit = semi4_block[character_row * 8 + j];
         bool pixel_set = (source & bit) != 0;
         current.palette = palette;
         if (pixel_set == 0) {
-            current.palette_index = 1 + ((source & 112) >> 4);
+            current.palette_index = 1 + ((source & 0x70) >> 4);
         } else {
             current.palette_index = 0;
         }
@@ -127,22 +119,11 @@ struct pixel_value extract_semigraphics6_pixel(uint8_t source, uint8_t character
     for (int j = 0; j < 8; ++j) {
         struct pixel_value current = results[j];
         current.pixel_width = 1;
-        int bit;
-        if (j < 4) {
-            bit = 1;
-        } else {
-            bit = 2;
-        }
-        if (character_row < 8) {
-            bit = bit << 2;
-            if (character_row < 4) {
-                bit = bit << 2;
-            }
-        }
+        int bit = semi6_block[character_row * 8 + j];
         bool pixel_set = (source & bit) != 0;
         current.palette = palette;
         if (pixel_set == 0) {
-            current.palette_index = 1 + ((source & 192) >> 6);
+            current.palette_index = 1 + ((source & 0xC0) >> 6);
         } else {
             current.palette_index = 0;
         }
@@ -174,7 +155,7 @@ void generate_text_rows(source_data_state_t *source_buffer[], uint8_t buffer_siz
         for (int j = 0; j < buffer_size; ++j) {
             uint8_t data = source_buffer[j]->data;
             uint8_t text_row = source_buffer[j]->text_row;
-            if (data > 127) {
+            if (data > 0x7F) {
                 struct palette palette = select_palette(source_buffer[j]->colour_set,
                                                         source_buffer[j]->semigraphics,
                                                         source_buffer[j]->graphics,
