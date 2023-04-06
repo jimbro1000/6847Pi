@@ -9,7 +9,9 @@ add_executable(6847pi
         src/palette.c
         src/font.c
         src/output.c
-        src/rowBuffer.c)
+        src/rowBuffer.c
+        src/pinInterface.c
+        src/vga.c)
 
 target_link_libraries(6847pi pico_stdlib pico_multicore)
 

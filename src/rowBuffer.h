@@ -5,13 +5,13 @@
 #ifndef INC_6847PI_ROWBUFFER_H
 #define INC_6847PI_ROWBUFFER_H
 
-    const uint32_t DEFAULT_ROW_BYTES = 32;
-    const uint32_t SLEEP = 5000;
-    const uint32_t BUFFER_SLEEP = 1;
+    extern const uint32_t DEFAULT_ROW_BYTES;
+    extern const uint32_t SLEEP;
+    extern const uint32_t BUFFER_SLEEP;
 
     void init_row_pipe();
-    bool push_to_output_buffer(struct output_row *new_row);
-    void safe_push_row(struct output_row *row);
-    struct output_row pop_from_output_buffer();
+    bool push_to_output_buffer(output_row_t *new_row);
+    void safe_push_row(output_row_t *row);
+    output_row_t pop_from_output_buffer();
 
 #endif //INC_6847PI_ROWBUFFER_H

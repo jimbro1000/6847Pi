@@ -5,12 +5,16 @@
 #include "6847pi.h"
 #include "rowBuffer.h"
 
+const uint32_t DEFAULT_ROW_BYTES = 32;
+const uint32_t SLEEP = 5000;
+const uint32_t BUFFER_SLEEP = 1;
+
 // output buffer
-struct output_row row_pipe[OUTPUT_BUFFER_SIZE];
+output_row_t row_pipe[OUTPUT_BUFFER_SIZE];
 // buffer insert point
-struct output_row *row_pipe_ptr;
+output_row_t *row_pipe_ptr;
 // buffer output point
-struct output_row *read_pipe_ptr;
+output_row_t *read_pipe_ptr;
 // expected buffer row length
 uint32_t current_row_size = DEFAULT_ROW_BYTES;
 
@@ -21,7 +25,7 @@ void init_row_pipe() {
     // link output buffer rows
     row_pipe[OUTPUT_BUFFER_SIZE - 1].next = &row_pipe[0];
     for (int i = OUTPUT_BUFFER_SIZE - 2; i >= 0; --i) {
-        row_pipe[i].next = &row_pipe[i+1];
+        row_pipe[i].next = &row_pipe[i + 1];
     }
     // set insert and output pointers
     row_pipe_ptr = &row_pipe[0];
@@ -32,7 +36,7 @@ void init_row_pipe() {
         for (int j = 0; j < current_row_size; ++j) {
             row_pipe_ptr->row[j] = 0;
         }
-        row_pipe_ptr = row_pipe_ptr->next;
+        row_pipe_ptr = (output_row_t *) row_pipe_ptr->next;
     }
 }
 
@@ -44,7 +48,7 @@ void init_row_pipe() {
  * @param new_row output row
  * @return success
  */
-bool push_to_output_buffer(struct output_row *new_row) {
+bool push_to_output_buffer(output_row_t *new_row) {
     bool result = false;
     if (row_pipe_ptr->next != read_pipe_ptr) {
         row_pipe_ptr->row_size = new_row->row_size;
@@ -52,7 +56,7 @@ bool push_to_output_buffer(struct output_row *new_row) {
             row_pipe_ptr->row[j] = new_row->row[j];
         }
         result = true;
-        row_pipe_ptr = row_pipe_ptr->next;
+        row_pipe_ptr = (output_row_t *) row_pipe_ptr->next;
     }
     return result;
 }
@@ -64,7 +68,7 @@ bool push_to_output_buffer(struct output_row *new_row) {
  *
  * @param row output row data
  */
-void safe_push_row(struct output_row *row) {
+void safe_push_row(output_row_t *row) {
     bool accepted = false;
     do {
         accepted = push_to_output_buffer(row);
@@ -74,8 +78,8 @@ void safe_push_row(struct output_row *row) {
     } while (!accepted);
 }
 
-struct output_row pop_from_output_buffer() {
-    struct output_row result;
+output_row_t pop_from_output_buffer() {
+    output_row_t result;
     result.row_size = read_pipe_ptr->row_size;
     for (int j=0; j<read_pipe_ptr->row_size; ++j) {
         result.row[j] = read_pipe_ptr->row[j];

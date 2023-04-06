@@ -2,6 +2,8 @@
 #include "pico/multicore.h"
 #include "6847pi.h"
 #include "rowBuffer.h"
+#include "pinInterface.h"
+#include "vga.h"
 
 //
 // Created by Julian on 05/04/2023.
@@ -54,7 +56,7 @@ void analog_output(int value, const int pins[], int scale) {
  *
  * Current implementation is almost definitely too slow and blocking
 */
-void generate_video_row(struct output_row output) {
+void generate_video_row(output_row_t output) {
     gpio_put(HS_PIN, 1);
     for (int j=0; j<DEFAULT_BACK_PORCH; ++j) {
         analog_output(0, RGB_PINS, RGB_SCALE);

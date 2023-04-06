@@ -5,6 +5,8 @@
 #include "palette.h"
 #include "rowBuffer.h"
 #include "output.h"
+#include "pinInterface.h"
+#include "vga.h"
 
 uint8_t row_counter;
 
@@ -14,7 +16,7 @@ uint8_t row_counter;
  * @param pixel structured pixel data with embedded palette reference
  * @return RGB word
  */
-uint16_t pixel_to_rgb(struct pixel_value pixel) {
+uint16_t pixel_to_rgb(pixel_value_t pixel) {
     uint16_t palette_index = pixel.palette.refs[pixel.palette_index] * 3;
     uint16_t result = (pixel.palette.source[palette_index] << 6) +
                       (pixel.palette.source[palette_index + 1] << 3) +
@@ -32,8 +34,8 @@ uint16_t pixel_to_rgb(struct pixel_value pixel) {
  * @param pixel head of structured pixel data linked list
  * @return revised tail index of output row
  */
-uint8_t pixel_block_to_rgb_row(struct output_row *output, uint8_t index, struct pixel_value *pixel) {
-    struct pixel_value *pixelPtr = pixel;
+uint8_t pixel_block_to_rgb_row(output_row_t *output, uint8_t index, pixel_value_t *pixel) {
+    pixel_value_t *pixelPtr = pixel;
     while (pixelPtr != NULL) {
         for (int i = 0; i < pixel->pixel_width; ++i) {
             output->row[index++] = pixel_to_rgb(*pixel);
@@ -161,12 +163,12 @@ struct pixel_value extract_semigraphics6_pixel(uint8_t source, uint8_t character
  * @param row_ratio number of rows to generate from the same sampled input (default 12)
  * @param bpp bits per pixel
  */
-void generate_text_rows(struct source_data_state *source_buffer[], uint8_t buffer_size, uint8_t row_ratio, uint8_t bpp) {
+void generate_text_rows(source_data_state_t *source_buffer[], uint8_t buffer_size, uint8_t row_ratio, uint8_t bpp) {
     const uint16_t cycles = 8;
     const uint16_t row_size = buffer_size * cycles;
     struct pixel_value pixelHead;
     for (int i = 0; i < row_ratio; ++i) {
-        struct output_row row;
+        output_row_t row;
         row.row_size = row_size;
         int counter = 0;
         for (int j = 0; j < buffer_size; ++j) {
@@ -212,14 +214,14 @@ void generate_text_rows(struct source_data_state *source_buffer[], uint8_t buffe
  * @param bpp bits per pixel
  * @param palette row palette
  */
-void generate_graphic_rows(struct source_data_state *source_buffer[], uint8_t buffer_size, uint8_t row_ratio, uint8_t bpp,
+void generate_graphic_rows(source_data_state_t *source_buffer[], uint8_t buffer_size, uint8_t row_ratio, uint8_t bpp,
                            struct palette palette) {
     const uint16_t cycles = 8 / bpp;
     const uint16_t row_size = buffer_size * cycles;
     struct pixel_value pixelHead;
     int counter = 0;
     for (int i = 0; i < row_ratio; ++i) {
-        struct output_row row;
+        output_row_t row;
         row.row_size = row_size;
         for (int j = 0; j < buffer_size; ++j) {
             uint8_t source = source_buffer[j]->data;
@@ -238,8 +240,8 @@ void generate_graphic_rows(struct source_data_state *source_buffer[], uint8_t bu
  * @param row_ratio screen rows per source row
  * @param bpp bits per pixel
  */
-void generate_row(struct source_data_state *source_buffer[], uint8_t buffer_size, uint8_t row_ratio, uint8_t bpp) {
-    struct source_data_state primary = *source_buffer[0];
+void generate_row(source_data_state_t *source_buffer[], uint8_t buffer_size, uint8_t row_ratio, uint8_t bpp) {
+    source_data_state_t primary = *source_buffer[0];
     if (primary.graphics) {
         struct palette palette = select_palette(primary.colour_set, primary.semigraphics, primary.graphics,
                                                 primary.external);
@@ -256,7 +258,7 @@ void generate_row(struct source_data_state *source_buffer[], uint8_t buffer_size
  *
  * @param sample sample data structure to populate
  */
-void sample_data(struct source_data_state *sample) {
+void sample_data(source_data_state_t *sample) {
     // sample control lines
     sample->external = gpio_get(EXT_PIN);
     sample->inverse = gpio_get(INV_PIN);
@@ -291,7 +293,7 @@ void sample_data(struct source_data_state *sample) {
  * @param buffer_size length of available buffer
  */
 void sample_row_data(uint8_t buffer_size) {
-    struct source_data_state *source_buffer[buffer_size];
+    source_data_state_t *source_buffer[buffer_size];
     //synchronise reads with cpu timing using graphics clock
     //wait for clock_pin rising edge
     bool clock_state = false;
