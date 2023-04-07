@@ -61,11 +61,11 @@ pixel_value_t extract_graphics_pixel(uint8_t source, uint8_t bpp, palette_t pale
         pixel_value_t current = results[j];
         int pixel = 0;
         for (int i = 0; i < bpp; ++i) {
-            if ((source & 128) != 0) {
+            if ((source & 0x80) != 0) {
                 pixel += 1;
             }
-            source = (source << 1) & 255;
-            pixel = (pixel << 1) & 255;
+            source = (source << 1) & 0xFF;
+            pixel = (pixel << 1) & 0xFF;
         }
         current.palette_index = pixel;
         current.palette = palette;
@@ -260,7 +260,7 @@ void sample_data(source_data_state_t *sample) {
     sample->data = 0;
     for (int i = 0; i < DATA_PIN_COUNT; ++i) {
         if (gpio_get(data_pin)) {
-            sample->data += 128;
+            sample->data += 0x80;
         }
         sample->data = sample->data >> 1;
     }
