@@ -83,18 +83,39 @@ const int semi6_block[6] = {
         0x02, 0x01,
 };
 
+/**
+ * Extract pixel data for a given character and row.
+ *
+ * @param character character code
+ * @param row character row
+ * @return pixel data for character
+ */
 uint8_t get_character_row(uint8_t character, uint8_t row) {
-    if (character >= CHAR_COL_MAX || row >= CHAR_ROW_MAX) {
+    if (character >= (CHAR_COL_MAX * 2) || row >= CHAR_ROW_MAX) {
         return 0;
     }
     uint8_t index = (character * CHAR_ROW_MAX + row) % 0x40;
     return mc6847_font[index];
 }
 
+/**
+ * Extract block mask for a given semigraphics 4 code.
+ *
+ * @param row character row
+ * @param col pixel column
+ * @return block mask
+ */
 uint8_t get_semi4_block(uint8_t row, uint8_t col) {
     return semi4_block[(row / 6) * 2 + (col / 4)];
 }
 
+/**
+ * Extract block mask for a given semigraphics 6 code.
+ *
+ * @param row character row
+ * @param col pixel column
+ * @return block mask
+ */
 uint8_t  get_semi6_block(uint8_t row, uint8_t col) {
     return semi6_block[(row / 4) * 2 + (col / 4)];
 }

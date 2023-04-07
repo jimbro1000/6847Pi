@@ -223,8 +223,8 @@ void generate_graphic_rows(source_data_state_t *source_buffer[], uint8_t buffer_
 void generate_row(source_data_state_t *source_buffer[], uint8_t buffer_size, uint8_t row_ratio, uint8_t bpp) {
     source_data_state_t primary = *source_buffer[0];
     if (primary.graphics) {
-        struct palette palette = select_palette(primary.colour_set, primary.semigraphics, primary.graphics,
-                                                primary.external);
+        palette_t palette = select_palette(primary.colour_set, primary.semigraphics,
+                                           primary.graphics, primary.external);
         generate_graphic_rows(source_buffer, buffer_size, row_ratio, bpp, palette);
     } else {
         generate_text_rows(source_buffer, buffer_size, 1, 8);
