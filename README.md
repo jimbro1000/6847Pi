@@ -9,7 +9,7 @@ with the Sinclair ULA or Commodore VIC chips this is a bulletproof system *but* 
 desirability.
 
 The PAL version of the output generated has a very limited palette when in higher resolution modes, the NTSC
-version of the output utilises video artifacting to provide a wider capability but is still well behind its
+version of the output utilises video artifacts to provide a wider capability but is still well behind its
 competitors.
 
 ## Building a better 6847 ##
@@ -39,7 +39,7 @@ address space. If used in conjunction with the MC6883 SAM chip only the first bi
 signal to an internal address counter. This allows the use of paged video memory - all on 512 byte boundaries, 
 potentially anywhere in the full 64k address space.
 
-In addition the chip provides a horizontal sync signal (consumed by the SAM)
+In addition, the chip provides a horizontal sync signal (consumed by the SAM)
 
 Fully implemented the data output requires 14 gpio pins. Simplifying the implementation in conjunction with a
 SAM reduces the pin count to just 2.
@@ -168,19 +168,19 @@ Unused GPIO pins: 12 22 (23 24)
 
 ## 6847 video output levels ##
 
-| Color     | Y	     | phi A | phi B |
-|:----------|:------:|:-----:|:-----:|
-|Green	    | 0.54   | 1.0   | 1.0   |
-|Yellow	    | 0.42   | 1.0   | 1.5   |
-|Blue	    | 0.72   | 2.0   | 1.5   |
-|Red	    | 0.72   | 1.5   | 2.0   |
-|Buff	    | 0.42   | 1.5   | 1.5   |
-|Cyan	    | 0.54   | 1.5   | 1.5   |
-|Magenta	| 0.54   | 2.0   | 2.0   |
-|Orange	    | 0.54   | 1.0   | 2.0   |
-|Black	    | 0.72   | 1.5   | 1.5   |
-|Dark Green	| 0.72   | 1.0   | 1.0   |
-|Dark Orange| 0.72   | 1.0   | 2.0   |
+| Color       |  Y	   | phi A | phi B |
+|:------------|:-----:|:-----:|:-----:|
+| Green       | 0.54  | 1.0   | 1.0   |
+| Yellow      | 0.42  | 1.0   | 1.5   |
+| Blue	       | 0.72  | 2.0   | 1.5   |
+| Red         | 0.72  | 1.5   | 2.0   |
+| Buff	       | 0.42  | 1.5   | 1.5   |
+| Cyan	       | 0.54  | 1.5   | 1.5   |
+| Magenta     | 0.54  | 2.0   | 2.0   |
+| Orange      | 0.54  | 1.0   | 2.0   |
+| Black       | 0.72  | 1.5   | 1.5   |
+| Dark Green  | 0.72  | 1.0   | 1.0   |
+| Dark Orange | 0.72  | 1.0   | 2.0   |
 
 Values for Y, phi A and phi B are in volts
 
@@ -261,9 +261,11 @@ GPIO pins, and better still the desired output levels match up with the bit step
 
 Again the signal pins are building a signal through a resistor ladder:
 
-Pin 0 -> 2kohm
-Pin 1 -> 1kohm
-Pin 2 -> 499ohm
+Pin 0 -> 2k ohm  
+Pin 1 -> 1k ohm  
+Pin 2 -> 499 ohm  
+
+The ladder (assuming a 75 ohm terminator) allows for a peak voltage of 0.69V
 
 The outputs are just combined in the same way as before to create a linear DAC.
 
@@ -295,4 +297,4 @@ transistors (TR2 and TR3) likely to destroy the quality of the signal given this
 AD724JR. Given the likelihood of needing a modulated RF output it is pretty much a moot point unless a need for nostalgic
 completeness is present.
 
-Note: the output levels are double the normal strength to accomodate 75ohm remote termination
+Note: the output levels are double the normal strength to accommodate 75ohm remote termination
