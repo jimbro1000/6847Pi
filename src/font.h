@@ -6,9 +6,10 @@
 #define FONT_LENGTH = (CHAR_COL_MAX * CHAR_ROW_MAX)
 
     extern const int mc6847_font[];
-    extern const int semi4_block[];
-    extern const int semi6_block[];
+//    extern const int semi4_block[];
+//    extern const int semi6_block[];
 
     uint8_t get_character_row(uint8_t character, uint8_t row);
-
+    uint8_t get_semi4_block(uint8_t row, uint8_t col);
+    uint8_t get_semi6_block(uint8_t row, uint8_t col);
 #endif

@@ -53,12 +53,12 @@ uint8_t pixel_block_to_rgb_row(output_row_t *output, uint8_t index, pixel_value_
  * @param palette applicable palette mapping for pixel data
  * @return forward linked list of pixel data
  */
-struct pixel_value extract_graphics_pixel(uint8_t source, uint8_t bpp, struct palette palette) {
-    struct pixel_value results[8];
-    struct pixel_value result = results[0];
+pixel_value_t extract_graphics_pixel(uint8_t source, uint8_t bpp, palette_t palette) {
+    pixel_value_t results[8];
+    pixel_value_t result = results[0];
     int ppb = 8 / bpp;
     for (int j = 0; j < ppb; ++j) {
-        struct pixel_value current = results[j];
+        pixel_value_t current = results[j];
         int pixel = 0;
         for (int i = 0; i < bpp; ++i) {
             if ((source & 128) != 0) {
@@ -84,13 +84,13 @@ struct pixel_value extract_graphics_pixel(uint8_t source, uint8_t bpp, struct pa
  * @param palette applicable colour palette
  * @return head of linked list of structured pixel data
  */
-struct pixel_value extract_semigraphics4_pixel(uint8_t source, uint8_t character_row, struct palette palette) {
-    struct pixel_value results[8];
-    struct pixel_value result = results[0];
+pixel_value_t extract_semigraphics4_pixel(uint8_t source, uint8_t character_row, palette_t palette) {
+    pixel_value_t results[8];
+    pixel_value_t result = results[0];
     for (int j = 0; j < 8; ++j) {
-        struct pixel_value current = results[j];
+        pixel_value_t current = results[j];
         current.pixel_width = 1;
-        int bit = semi4_block[character_row * 8 + j];
+        int bit = get_semi4_block(character_row, j);
         bool pixel_set = (source & bit) != 0;
         current.palette = palette;
         if (pixel_set == 0) {
@@ -113,13 +113,13 @@ struct pixel_value extract_semigraphics4_pixel(uint8_t source, uint8_t character
  * @param palette applicable colour palette
  * @return head of linked list of structured pixel data
  */
-struct pixel_value extract_semigraphics6_pixel(uint8_t source, uint8_t character_row, struct palette palette) {
-    struct pixel_value results[8];
-    struct pixel_value result = results[0];
+pixel_value_t extract_semigraphics6_pixel(uint8_t source, uint8_t character_row, palette_t palette) {
+    pixel_value_t results[8];
+    pixel_value_t result = results[0];
     for (int j = 0; j < 8; ++j) {
-        struct pixel_value current = results[j];
+        pixel_value_t current = results[j];
         current.pixel_width = 1;
-        int bit = semi6_block[character_row * 8 + j];
+        int bit = get_semi6_block(character_row, j);
         bool pixel_set = (source & bit) != 0;
         current.palette = palette;
         if (pixel_set == 0) {
@@ -160,7 +160,6 @@ void generate_text_rows(source_data_state_t *source_buffer[], uint8_t buffer_siz
                                                         source_buffer[j]->semigraphics,
                                                         source_buffer[j]->graphics,
                                                         source_buffer[j]->external);
-                //semigraphics
                 if (source_buffer[j]->external) {
                     //SG4
                     pixelHead = extract_semigraphics4_pixel(data,
@@ -196,10 +195,10 @@ void generate_text_rows(source_data_state_t *source_buffer[], uint8_t buffer_siz
  * @param palette row palette
  */
 void generate_graphic_rows(source_data_state_t *source_buffer[], uint8_t buffer_size, uint8_t row_ratio, uint8_t bpp,
-                           struct palette palette) {
+                           palette_t palette) {
     const uint16_t cycles = 8 / bpp;
     const uint16_t row_size = buffer_size * cycles;
-    struct pixel_value pixelHead;
+    pixel_value_t pixelHead;
     int counter = 0;
     for (int i = 0; i < row_ratio; ++i) {
         output_row_t row;
