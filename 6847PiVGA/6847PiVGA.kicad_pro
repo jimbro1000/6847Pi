@@ -49,7 +49,7 @@
         "silk_text_upright": false,
         "zones": {
           "45_degree_only": false,
-          "min_clearance": 0.508
+          "min_clearance": 0.2
         }
       },
       "diff_pair_dimensions": [
@@ -467,7 +467,7 @@
         "name": "Default",
         "pcb_color": "rgba(0, 0, 0, 0.000)",
         "schematic_color": "rgba(0, 0, 0, 0.000)",
-        "track_width": 0.25,
+        "track_width": 0.2,
         "via_diameter": 0.8,
         "via_drill": 0.4,
         "wire_width": 6
@@ -637,6 +637,10 @@
     [
       "f0710b92-d288-438f-aac5-f4a9bf0cd905",
       "Root"
+    ],
+    [
+      "e14e5075-2601-46cb-b835-2318ab2e5403",
+      "rp2040"
     ]
   ],
   "text_variables": {}
