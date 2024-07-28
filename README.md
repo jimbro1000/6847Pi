@@ -1,7 +1,9 @@
 # Motorola 6847P Replacement #
+
 ## Background ##
-The 6847P is fairly ubiquitous in the history of 70s/80s home computers and while it provides a simple solution to 
-video signal generation although with fairly basic capabilities in comparison with the custom video solutions 
+
+The 6847P is fairly ubiquitous in the history of 70s/80s home computers and while it provides a simple solution to
+video signal generation although with fairly basic capabilities in comparison with the custom video solutions
 of other 80s home computers.
 
 In terms of availability, the chip is easily obtained and due to reliability, rarely needs replacing. Compared
@@ -13,6 +15,7 @@ version of the output utilises video artifacts to provide a wider capability but
 competitors.
 
 ## Building a better 6847 ##
+
 There are a number of things that can be done to improve on the design and the availability of high performance,
 cheap microcontrollers means it is fairly simple to build a custom VDG that exhibits the same external behaviour
 while operating in a completely custom manner internally.
@@ -27,6 +30,7 @@ implementation - INV and DD6 are combined, as are ~A/S and DD7, and ~INT/EXT wit
 simply not enough GPIO pins available on the pre-built RP Pico board (as opposed to the RP2040 chip itself).
 
 ## Objectives ##
+
 1. MVP is to reproduce the existing 6847 as per the original Motorola datasheet using the RP2040 microcontroller
 2. Add custom font definition
 3. Modify palette definitions per mode
@@ -34,9 +38,10 @@ simply not enough GPIO pins available on the pre-built RP Pico board (as opposed
 5. Create custom video modes with novel screen construction and timing
 
 ## Signal Output ##
+
 The 6847 provides 13 lanes of address bus to reference memory - this maps to the first 8k of the regular 16bit
 address space. If used in conjunction with the MC6883 SAM chip only the first bit is used to provided a clock
-signal to an internal address counter. This allows the use of paged video memory - all on 512 byte boundaries, 
+signal to an internal address counter. This allows the use of paged video memory - all on 512 byte boundaries,
 potentially anywhere in the full 64k address space.
 
 In addition, the chip provides a horizontal sync signal (consumed by the SAM)
@@ -45,7 +50,9 @@ Fully implemented the data output requires 14 gpio pins. Simplifying the impleme
 SAM reduces the pin count to just 2.
 
 ## Signal Input ##
+
 The 6847 requires a clock input (CLK), 8 bits of data bus (DD0-DD7) and 8 bits of mode control:
+
 * ~A/G = Alpha or Graphics
 * ~A/S = Alpha or Semigraphics
 * ~INT/EXT = Internal or External alphanumerics
@@ -57,7 +64,7 @@ The 6847 requires a clock input (CLK), 8 bits of data bus (DD0-DD7) and 8 bits o
 
 ~A/G, ~A/S, CSS and INV can be controlled on a character by character basis.
 
-CSS selects between two possible alphanumeric colours - the effect 
+CSS selects between two possible alphanumeric colours - the effect
 will vary depending on the graphic mode selected
 
 | ~A/G | ~A/S | ~INT/EXT | INV | GM2 | GM1 | GM0 | Mode                           | Colours | Page Size |
@@ -76,10 +83,11 @@ will vary depending on the graphic mode selected
 |  1   |  X   |    X     |  X  |  1  |  0  |  1  | 128x192 Graphics               |    2    |   3072    |
 |  1   |  X   |    X     |  X  |  1  |  1  |  0  | 128x192 Graphics               |    4    |   6144    |
 |  1   |  X   |    X     |  X  |  1  |  1  |  1  | 256x192 Graphics               |    2    |   6144    |
- 
+
 The control input consumes 15 GPIO pins.
 
 ## Video Output ##
+
 The 6847 has three output lines - Luminance (Y), ∅ A and ∅ B.
 
 The three signals combine to provide 9 colours - black, green, yellow, blue, red, buff (white), cyan, magenta
@@ -101,14 +109,14 @@ two levels are used for signal blanking and sync.
 | Magenta | 1 |  2  | 3 |  
 | Orange  | 1 |  2  | 0 |  
 
-Using the original datasheet for reference the default output is for NTSC and requires a timing phase 
-difference between the Y, A and B signals. Y leads the trio, B follows, then A. The Y-B delay is half 
+Using the original datasheet for reference the default output is for NTSC and requires a timing phase
+difference between the Y, A and B signals. Y leads the trio, B follows, then A. The Y-B delay is half
 the rise/fall time of Y, while the B-A delay is fully the sum of Y-B and the rise/fall time of B.
 
-To achieve an analogue signal output from the microcontroller the signal must be synthesized from a 
+To achieve an analogue signal output from the microcontroller the signal must be synthesized from a
 group of digital GPIO pins.
 
-For the 6 level Y output 3 pins are needed (actually achieves 8 levels). For A and B where 3 or 4 levels are 
+For the 6 level Y output 3 pins are needed (actually achieves 8 levels). For A and B where 3 or 4 levels are
 required then just 2 gpio pins each is needed. This consumes a total of 7 GPIO pins.
 
 ## Total GPIO Pin Requirements ##
@@ -150,7 +158,7 @@ inadequate for the full pin requirement of 36 pins.
 |   DA3 25    |        -        |        -         |
 |   DA4 26    |        -        |        -         |
 |   GM2 27    |    GPIO10 13    |     GP10 14      |
-|    Y 28     | GPIO26-28 38-40 | GP26-28 31,32,34 | 
+|    Y 28     | GPIO26-28 38-40 | GP26-28 31,32,34 |
 |   GM1 29    |    GPIO9 12     |      GP9 12      |
 |   GM0 30    |    GPIO8 11     |      GP8 11      |
 | ~INT/EXT 31 |    GPIO8 11     |      GP8 11      |
@@ -168,14 +176,14 @@ Unused GPIO pins: 12 22 (23 24)
 
 ## 6847 video output levels ##
 
-| Color       |  Y	   | phi A | phi B |
+| Color       |  Y    | phi A | phi B |
 |:------------|:-----:|:-----:|:-----:|
 | Green       | 0.54  | 1.0   | 1.0   |
 | Yellow      | 0.42  | 1.0   | 1.5   |
-| Blue	       | 0.72  | 2.0   | 1.5   |
+| Blue        | 0.72  | 2.0   | 1.5   |
 | Red         | 0.72  | 1.5   | 2.0   |
-| Buff	       | 0.42  | 1.5   | 1.5   |
-| Cyan	       | 0.54  | 1.5   | 1.5   |
+| Buff        | 0.42  | 1.5   | 1.5   |
+| Cyan        | 0.54  | 1.5   | 1.5   |
 | Magenta     | 0.54  | 2.0   | 2.0   |
 | Orange      | 0.54  | 1.0   | 2.0   |
 | Black       | 0.72  | 1.5   | 1.5   |
@@ -185,6 +193,7 @@ Unused GPIO pins: 12 22 (23 24)
 Values for Y, phi A and phi B are in volts
 
 ### Y DAC ###
+
 The 3 GPIO outputs can be converted to an analogue output using a resistor ladder array
 
 GPIO 26 - 2kohm
@@ -193,7 +202,7 @@ GPIO 27 - 1kohm
 
 GPIO 28 - 499ohm
 
-Result is 8 levels from 0 to 7 - only the values 0 to 5 are needed. The output at level 
+Result is 8 levels from 0 to 7 - only the values 0 to 5 are needed. The output at level
 5 needs to be peak output, to achieve this some level mapping is needed.
 
 | level | pin 2 | pin 1 | pin 0 | target | output |
@@ -206,11 +215,12 @@ Result is 8 levels from 0 to 7 - only the values 0 to 5 are needed. The output a
 | 5     | 1     | 1     | 1     | 100%   | 100%   |
 
 ### A and B DAC ###
+
 The outputs both use the same arrangement with just 2 pins each
 
 GPIO 18, 20 - 1kohm
 
-GPIO 19, 21 - 499ohm 
+GPIO 19, 21 - 499ohm
 
 Result on each pair is 4 levels from 0 to 3
 
@@ -224,15 +234,16 @@ mapping again.
 | 2     | 1      | 1      | 100%   | 100%   |
 
 ## Phase 2 ##
-The next objective of development is to replace the LM889 composite modulator with the more modern AD724JR, 
+
+The next objective of development is to replace the LM889 composite modulator with the more modern AD724JR,
 the important detail here is that the AD724JR requires an RGB input instead of the YAB signals normally
-produced by the original 6847P. This in turn means we have a proper RGB signal to consume externally, not 
+produced by the original 6847P. This in turn means we have a proper RGB signal to consume externally, not
 just by the AD724JR which gives us two bonuses for the price of one.
 
 RGB output from the RP2040 is an established capability so in many ways this is actually simplifying the
 necessary work.
 
-The complicating point here is that an 8 colour output is nice and simple and needs just 2 bits per 
+The complicating point here is that an 8 colour output is nice and simple and needs just 2 bits per
 component channel but the Dragon needs 9 colours (actually it is more than this as we have three shades of
 black generated in normal output and two different shades of orange - even if the normal green and bright
 orange are not generated on the same screen mode). Nonetheless, if the original output is to be retained
@@ -279,7 +290,7 @@ the input to the AD724JR shouldn't need the resistors in line.
 ## AD724JR Input ##
 
 Beyond the RGB, Hsync and Vsync, the AD724JR video encoder doesn't need much extra. Two 5V inputs, two grounds, a timing
-signal (4.43362MHz for PAL) and some fixed values for "Encode" (high for run, low for standby), "select" (low), and 
+signal (4.43362MHz for PAL) and some fixed values for "Encode" (high for run, low for standby), "select" (low), and
 "standard" (low for PAL).
 
 ## AD724JR Output ##
@@ -287,7 +298,7 @@ signal (4.43362MHz for PAL) and some fixed values for "Encode" (high for run, lo
 The encoder provides three signals for two independent outputs. The only one of these needed is "COMP" - a combined
 composite output. The other two are isolated chrominance and luminance outputs used in s-video.
 
-Using the composite output on the AD724JR means the carefully controlled, phase matched Y/A/B output can be removed from 
+Using the composite output on the AD724JR means the carefully controlled, phase matched Y/A/B output can be removed from
 the Pico's responsibility. The composite output can be fed directly to the monitor port instead, although this then would
 require removing or disabling the onboard signal encoder (LM1889). The new output line can be supplied directly to the
 video half of the power board (pin 6). If the modulator is to be retained it would need to be fed to the base pin of TR4,
@@ -298,3 +309,30 @@ AD724JR. Given the likelihood of needing a modulated RF output it is pretty much
 completeness is present.
 
 Note: the output levels are double the normal strength to accommodate 75ohm remote termination
+
+## Adopting PICOVGA library ##
+
+Rather than write a custom set of PIO routines and supporting C code, the quickest route to production is to adopt some
+ready made code in the form of PICOVGA. This is a swiss army knife approach to rendering to VGA but solves all of the
+timing problems.
+
+The primary concession at this point is that the video must render at 60Hz which makes PAL video output ugly. The next
+point is that the pixel colour is strictly 8-bit instead of 9-but (RRRGGGBB instead of RRRGGGBBB). This is not a terrible
+problem given the 8-bit colour approach is widely used and as demonstrated by the many demonstration projects, 256 colours
+is plenty for the immediate needs of just 12 in the 6847 palette. Even including 4 extra for the NTSC artifact colours
+there is plenty of scope to play with.
+
+[PICOVGA Library](https://www.breatharian.eu/hw/picovga/index_en.html)
+
+One of the big advantages here is that this generates the same data as required for the AD724 modulator so composite
+and S-Video output is still possible (with or without audio).
+
+## Ditching VGA for DVI ##
+
+The alternative to VGA is to use a DVI library to perform the same task - and since it already exists this is not a huge
+task. The IO requirements for DVI remain much the same 8 bits of data (4 differential pairs) and the HPD signal.
+
+The downside to using DVI is a lack of support for an audio channel and similarly no support for other formats. It is
+possible to blend an audio channel into an HDMI format (based on the DVI signal) but this requires additional hardware.
+
+[PICODVI Library](https://github.com/Wren6991/PicoDVI)
